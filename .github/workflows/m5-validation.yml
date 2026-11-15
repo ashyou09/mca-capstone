@@ -1,0 +1,37 @@
+name: M5 integration validation
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [m5-integrated]
+
+permissions:
+  contents: read
+
+jobs:
+  cache-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install Verilog simulator and plotting dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iverilog python3-matplotlib
+
+      - name: Check Python syntax
+        run: |
+          python3 -m py_compile traces/gen_traces.py analysis/analyze.py analysis/golden_model.py analysis/compare.py
+
+      - name: Run integrated M2-M4 and M5 trace verification
+        run: make test
+
+      - name: Run M5 reference analysis and parameter sweep
+        run: make analysis
+
+      - name: Validate one RTL CSV and calculate measured metrics
+        run: make analysis-rtl T=seq

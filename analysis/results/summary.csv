@@ -1,0 +1,8 @@
+trace,cache_bytes,block_bytes,mem_latency,result_source,accesses,hits,misses,hit_ratio,miss_ratio,compulsory_misses,conflict_misses,capacity_misses,hit_time_cycles,miss_latency_cycles,miss_penalty_cycles,avg_hit_latency_cycles,avg_miss_latency_cycles,measured_miss_penalty_cycles,measured_amat_cycles,formula_amat_cycles,amat_difference_cycles
+loop,1024,16,4,Python reference model,4096,4064,32,0.9921875,0.0078125,32,0,0,1,22,21,1.0,22.0,21.0,1.1640625,1.1640625,0.0
+matrix_col,1024,16,4,Python reference model,4096,0,4096,0.0,1.0,1024,3072,0,1,22,21,0.0,22.0,21.0,22.0,22.0,0.0
+matrix_row,1024,16,4,Python reference model,4096,3072,1024,0.75,0.25,1024,0,0,1,22,21,1.0,22.0,21.0,6.25,6.25,0.0
+mixed,1024,16,4,Python reference model,4096,3253,843,0.794189453125,0.205810546875,618,217,8,1,22,21,1.0,22.0,21.0,5.322021484375,5.322021484375,0.0
+random,1024,16,4,Python reference model,4096,19,4077,0.004638671875,0.995361328125,3616,2,459,1,22,21,1.0,22.0,21.0,21.902587890625,21.902587890625,0.0
+seq,1024,16,4,Python reference model,4096,3072,1024,0.75,0.25,1024,0,0,1,22,21,1.0,22.0,21.0,6.25,6.25,0.0
+stride,1024,16,4,Python reference model,4096,0,4096,0.0,1.0,2390,1364,342,1,22,21,0.0,22.0,21.0,22.0,22.0,0.0
