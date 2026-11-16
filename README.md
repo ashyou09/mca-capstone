@@ -13,9 +13,7 @@ A parameterized, synthesizable **Direct-Mapped Cache Controller** in Verilog wit
 ## 📌 Phase I Submission Deliverables
 
 - 📄 **IEEE Project Report (PDF):** [`report/ieee_project_report.pdf`](report/ieee_project_report.pdf)
-- 📝 **Full Technical Report (Markdown):** [`report/final_report.md`](report/final_report.md) | [Word (DOCX)](report/final_report.docx) | [HTML](report/final_report.html)
-- 🖥️ **Interactive 12-Slide Presentation:** [`report/presentation.html`](report/presentation.html)
-- 🎥 **Prototype Demo Video Link:** `[Insert Video URL Here - e.g. YouTube / Google Drive]` *(See recording script: [`report/prototype_video_script.md`](report/prototype_video_script.md))*
+- 🎥 **Prototype Demo Video Link:** `[Insert Video URL Here - e.g. YouTube / Google Drive]` *(See single-presenter script: [`report/video_script.md`](report/video_script.md))*
 - 📊 **Architecture Block Diagram:** [`docs/architecture_block_diagram.svg`](docs/architecture_block_diagram.svg)
 - 📋 **Phase I Submission Form:** [Google Form Submission](https://docs.google.com/forms/d/e/1FAIpQLSc6Cx8OrOQLGj_X2ZMkyG5jc8mokq36mGRq2x8jGRNV1sbegA/viewform) *(Deadline: Nov 16, 2026, 11:59 PM GMT+5:30)*
 
@@ -164,15 +162,9 @@ make wave
 │   ├── hit_miss_report.md              # Workload performance analysis & AMAT study
 │   ├── synthesis.md                    # Detailed synthesis findings & Fmax reports
 │   └── viva_m5.md                      # Comprehensive viva interview questions & answers
-└── report/                             # Phase I IEEE report, video script, and presentation
-    ├── ieee_project_report.pdf         # Official IEEE 2-column project report
-    ├── final_report.md                 # Comprehensive 1,300+ line technical report
-    ├── final_report.docx               # Microsoft Word format report
-    ├── final_report.html               # Web format report
-    ├── presentation.html               # 12-slide interactive HTML presentation
-    ├── presentation_outline.md         # Slide outline & speaker notes
-    ├── demo_script.md                  # 3-minute quick viva demonstration script
-    └── prototype_video_script.md       # 5-minute timed video recording script (Phase I)
+└── report/                             # Phase I official IEEE report and video script
+    ├── ieee_project_report.pdf         # Official IEEE 2-column project report for submission
+    └── video_script.md                 # 4-minute single presenter video recording script
 ```
 
 ---
