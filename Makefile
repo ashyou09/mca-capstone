@@ -62,7 +62,7 @@ endif
 	@set -eu; \
 	case "$${T:-}" in ""|*[!A-Za-z0-9_-]*) echo "ERROR: T must contain only letters, digits, underscore or hyphen" >&2; exit 2;; esac; \
 	exec 9>/tmp/mca-capstone-cache-trace.lock; \
-	flock -x 9; \
+	command -v flock >/dev/null 2>&1 && flock -x 9 || true; \
 	trace_file="$(TRACES_DIR)/$$T.trace"; \
 	sim_csv="$(RESULTS_DIR)/$$T"; \
 	golden_csv="$(RESULTS_DIR)/$$T"; \
@@ -97,10 +97,10 @@ traces:
 	$(PYTHON) traces/gen_traces.py --count 4096 --seed 20261116
 
 analysis: traces
-	@set -eu; exec 9>/tmp/mca-capstone-cache-trace.lock; flock -x 9; $(PYTHON) analysis/analyze.py
+	@set -eu; exec 9>/tmp/mca-capstone-cache-trace.lock; command -v flock >/dev/null 2>&1 && flock -x 9 || true; $(PYTHON) analysis/analyze.py
 
 analysis-base: traces
-	@set -eu; exec 9>/tmp/mca-capstone-cache-trace.lock; flock -x 9; $(PYTHON) analysis/analyze.py --no-sweep --cache 1024 --block 16 --latency 4
+	@set -eu; exec 9>/tmp/mca-capstone-cache-trace.lock; command -v flock >/dev/null 2>&1 && flock -x 9 || true; $(PYTHON) analysis/analyze.py --no-sweep --cache 1024 --block 16 --latency 4
 
 # Keep simulation, golden comparison and RTL analysis in one cross-process critical section.
 analysis-rtl: $(BUILD_DIR) $(RESULTS_DIR)
@@ -110,7 +110,7 @@ endif
 	@set -eu; \
 	case "$${T:-}" in ""|*[!A-Za-z0-9_-]*) echo "ERROR: T must contain only letters, digits, underscore or hyphen" >&2; exit 2;; esac; \
 	exec 9>/tmp/mca-capstone-cache-trace.lock; \
-	flock -x 9; \
+	command -v flock >/dev/null 2>&1 && flock -x 9 || true; \
 	trace_file="$(TRACES_DIR)/$$T.trace"; \
 	sim_csv="$(RESULTS_DIR)/$$T"; \
 	golden_csv="$(RESULTS_DIR)/$$T"; \

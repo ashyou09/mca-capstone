@@ -5,4 +5,7 @@ __pycache__/
 sim_out/
 synth/build/
 build/
+*.lock
+.m5-analysis.lock
+
 
