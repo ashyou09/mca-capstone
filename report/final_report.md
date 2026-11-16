@@ -7,13 +7,13 @@
 **Course:** MCA Capstone Project — Computer Architecture
 
 **Team Members:**
-- M1 — Architect, Controller FSM, Top Integration
-- M2 — Storage Datapath
-- M3 — Narendra Singh — Main Memory Interface, Synthesis
-- M4 — Verification
-- M5 — Traces, Analysis, Report
+- **M1 (Lead):** Pankaj Baid (`pankaj.baid2024@nst.rishihood.edu.in`) — System Architect & FSM Controller
+- **M2:** Ashutosh Singh (`ashutosh.singh2024@nst.rishihood.edu.in`) — Storage Datapath & Address Decoder
+- **M3:** Narendra Singh (`narendrasingh.coder@gmail.com`) — Memory Interface & FPGA Synthesis
+- **M4:** Shreya Suman (`shreya.212suman@gmail.com`) — Verification Lead & Golden Model
+- **M5:** Ranvendra Pratap Singh (`ranvendra.singh2024@nst.rishihood.edu.in`) — Workload Analysis & Benchmark Studies
 
-**Date:** November 2026
+**Date:** November 16, 2026 (Phase I Evaluation)
 
 ---
 
