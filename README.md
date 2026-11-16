@@ -164,7 +164,7 @@ make wave
 │   ├── hit_miss_report.md              # Workload performance analysis & AMAT study
 │   ├── synthesis.md                    # Detailed synthesis findings & Fmax reports
 │   └── viva_m5.md                      # Comprehensive viva interview questions & answers
-└── report/                             # Phase I & Phase II reports and presentations
+└── report/                             # Phase I IEEE report, video script, and presentation
     ├── ieee_project_report.pdf         # Official IEEE 2-column project report
     ├── final_report.md                 # Comprehensive 1,300+ line technical report
     ├── final_report.docx               # Microsoft Word format report

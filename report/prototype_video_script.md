@@ -17,7 +17,7 @@
 | **M2** | **Ashutosh Singh** | System Architecture & Storage Datapath | Architecture Diagram (`docs/architecture_block_diagram.svg`) |
 | **M3** | **Narendra Singh** | Memory Model & FPGA Synthesis Results | Terminal (`docs/synthesis.md` / `synth/reports/summary.md`) |
 | **M4** | **Shreya Suman** | Directed Verification & Live Terminal Demo | Terminal (`make test` live execution & 146 checks) |
-| **M5** | **Ranvendra Pratap Singh** | Workload Analysis (Hit Ratio, AMAT) & Conclusion | Generated Plots (`analysis/results/*.png`) & Phase II Roadmap |
+| **M5** | **Ranvendra Pratap Singh** | Workload Analysis (Hit Ratio, AMAT) & Conclusion | Generated Plots (`analysis/results/*.png`) & Summary |
 
 ---
 
@@ -110,17 +110,18 @@
 
 ---
 
-### [4:15 – 4:45] Segment 6: Conclusion & Phase II Roadmap (Speaker: Pankaj Baid)
+### [4:15 – 4:45] Segment 6: Conclusion & Summary of Phase I Deliverables (Speaker: Pankaj Baid)
 **Visual on Screen:** Presentation Slide 12 or GitHub Repository landing page.
 
 > **Pankaj Baid:**  
-> "In conclusion, our Phase I prototype is fully implemented, verified, synthesized, and analyzed:  
-> - Synthesizable Verilog RTL with modular hierarchy  
-> - Automated regression suite with 146 directed checks passing  
-> - Quantitative AMAT analysis and 3-C miss classification  
-> - Comprehensive IEEE report and interactive documentation  
+> "In conclusion, our Phase I prototype and evaluation requirements are completely fulfilled:  
+> - Fully synthesizable Verilog RTL with modular datapath hierarchy  
+> - Comprehensive automated verification with 146 directed checks and 8 workload trace co-simulations passing at 100%  
+> - Quantitative AMAT evaluation and 3-C miss classification  
+> - Tool-driven FPGA synthesis on Xilinx 7-series and Lattice iCE40  
+> - Official IEEE Project Report and GitHub repository documentation  
 > 
-> For **Phase II**, we will expand this prototype with set-associative cache mapping, LRU replacement policies, and write-back with dirty-bit tracking.  
+> All source codes, testbenches, waveforms, synthesis logs, and reports are available in our GitHub repository submitted for Phase I.  
 > 
 > Thank you for your time and evaluation!"
 
