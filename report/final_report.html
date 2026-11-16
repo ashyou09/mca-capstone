@@ -1,0 +1,3648 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Direct-Mapped Cache Controller — Final Project Report</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Direct-Mapped Cache Controller — Final Project
+Report</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#direct-mapped-cache-controller"
+id="toc-direct-mapped-cache-controller">Direct-Mapped Cache
+Controller</a>
+<ul>
+<li><a href="#design-verification-and-architectural-analysis-in-verilog"
+id="toc-design-verification-and-architectural-analysis-in-verilog">Design,
+Verification, and Architectural Analysis in Verilog</a></li>
+<li><a href="#abstract" id="toc-abstract">Abstract</a></li>
+<li><a href="#table-of-contents" id="toc-table-of-contents">Table of
+Contents</a></li>
+<li><a href="#introduction" id="toc-introduction">1. Introduction</a>
+<ul>
+<li><a href="#the-memory-hierarchy-problem"
+id="toc-the-memory-hierarchy-problem">1.1 The Memory Hierarchy
+Problem</a></li>
+<li><a href="#locality-of-reference" id="toc-locality-of-reference">1.2
+Locality of Reference</a></li>
+<li><a href="#project-motivation-and-scope"
+id="toc-project-motivation-and-scope">1.3 Project Motivation and
+Scope</a></li>
+</ul></li>
+<li><a href="#system-architecture" id="toc-system-architecture">2.
+System Architecture</a>
+<ul>
+<li><a href="#block-diagram" id="toc-block-diagram">2.1 Block
+Diagram</a></li>
+<li><a href="#module-hierarchy" id="toc-module-hierarchy">2.2 Module
+Hierarchy</a></li>
+<li><a href="#cpu-side-interface-cache_top"
+id="toc-cpu-side-interface-cache_top">2.3 CPU-Side Interface
+(<code>cache_top</code>)</a></li>
+<li><a href="#memory-side-interface-cache_top-main_memory"
+id="toc-memory-side-interface-cache_top-main_memory">2.4 Memory-Side
+Interface (<code>cache_top</code> ↔︎ <code>main_memory</code>)</a></li>
+<li><a href="#internal-sub-module-interfaces"
+id="toc-internal-sub-module-interfaces">2.5 Internal Sub-Module
+Interfaces</a></li>
+<li><a href="#design-parameters" id="toc-design-parameters">2.6 Design
+Parameters</a></li>
+</ul></li>
+<li><a href="#address-breakdown" id="toc-address-breakdown">3. Address
+Breakdown</a>
+<ul>
+<li><a href="#field-derivation" id="toc-field-derivation">3.1 Field
+Derivation</a></li>
+<li><a href="#parameter-sensitivity" id="toc-parameter-sensitivity">3.2
+Parameter Sensitivity</a></li>
+<li><a href="#worked-examples-base-configuration"
+id="toc-worked-examples-base-configuration">3.3 Worked Examples (Base
+Configuration)</a></li>
+</ul></li>
+<li><a href="#cache-controller-fsm" id="toc-cache-controller-fsm">4.
+Cache Controller FSM</a>
+<ul>
+<li><a href="#state-diagram" id="toc-state-diagram">4.1 State
+Diagram</a></li>
+<li><a href="#state-purpose" id="toc-state-purpose">4.2 State
+Purpose</a></li>
+<li><a href="#state-transition-table"
+id="toc-state-transition-table">4.3 State Transition Table</a></li>
+<li><a href="#mealy-vs.-moore-justification"
+id="toc-mealy-vs.-moore-justification">4.4 Mealy vs. Moore
+Justification</a></li>
+<li><a href="#cycle-by-cycle-miss-timeline"
+id="toc-cycle-by-cycle-miss-timeline">4.5 Cycle-by-Cycle Miss
+Timeline</a></li>
+<li><a href="#miss-penalty-formula-derivation"
+id="toc-miss-penalty-formula-derivation">4.6 Miss Penalty Formula
+Derivation</a></li>
+<li><a href="#write-support-optional-write_support1"
+id="toc-write-support-optional-write_support1">4.7 Write Support
+(Optional, <code>WRITE_SUPPORT=1</code>)</a></li>
+</ul></li>
+<li><a href="#storage-datapath" id="toc-storage-datapath">5. Storage
+Datapath</a>
+<ul>
+<li><a href="#module-specifications" id="toc-module-specifications">5.1
+Module Specifications</a></li>
+<li><a href="#design-decisions" id="toc-design-decisions">5.2 Design
+Decisions</a></li>
+<li><a href="#word-storage-convention"
+id="toc-word-storage-convention">5.3 Word Storage Convention</a></li>
+<li><a href="#synthesis-mapping-implications"
+id="toc-synthesis-mapping-implications">5.4 Synthesis Mapping
+Implications</a></li>
+</ul></li>
+<li><a href="#main-memory-model" id="toc-main-memory-model">6. Main
+Memory Model</a>
+<ul>
+<li><a href="#behavioural-model" id="toc-behavioural-model">6.1
+Behavioural Model</a></li>
+<li><a href="#parameters-and-ports" id="toc-parameters-and-ports">6.2
+Parameters and Ports</a></li>
+<li><a href="#handshake-protocol" id="toc-handshake-protocol">6.3
+Handshake Protocol</a></li>
+<li><a href="#contents-formula" id="toc-contents-formula">6.4 Contents
+Formula</a></li>
+<li><a href="#cross-check" id="toc-cross-check">6.5 Cross-Check</a></li>
+</ul></li>
+<li><a href="#verification-methodology"
+id="toc-verification-methodology">7. Verification Methodology</a>
+<ul>
+<li><a href="#verification-strategy" id="toc-verification-strategy">7.1
+Verification Strategy</a></li>
+<li><a href="#test-plan-matrix" id="toc-test-plan-matrix">7.2 Test Plan
+Matrix</a></li>
+<li><a href="#directed-test-timing-verification"
+id="toc-directed-test-timing-verification">7.3 Directed Test Timing
+Verification</a></li>
+<li><a href="#waveform-evidence" id="toc-waveform-evidence">7.4 Waveform
+Evidence</a></li>
+<li><a href="#mutation-analysis-fault-injection"
+id="toc-mutation-analysis-fault-injection">7.5 Mutation Analysis (Fault
+Injection)</a></li>
+<li><a href="#functional-coverage-summary"
+id="toc-functional-coverage-summary">7.6 Functional Coverage
+Summary</a></li>
+</ul></li>
+<li><a href="#workload-design-and-trace-generation"
+id="toc-workload-design-and-trace-generation">8. Workload Design and
+Trace Generation</a>
+<ul>
+<li><a href="#trace-format" id="toc-trace-format">8.1 Trace
+Format</a></li>
+<li><a href="#regeneration" id="toc-regeneration">8.2
+Regeneration</a></li>
+<li><a href="#seven-workloads" id="toc-seven-workloads">8.3 Seven
+Workloads</a></li>
+</ul></li>
+<li><a href="#performance-results" id="toc-performance-results">9.
+Performance Results</a>
+<ul>
+<li><a href="#hitmiss-summary-python-reference-model"
+id="toc-hitmiss-summary-python-reference-model">9.1 Hit/Miss Summary
+(Python Reference Model)</a></li>
+<li><a href="#three-c-miss-classification"
+id="toc-three-c-miss-classification">9.2 Three-C Miss
+Classification</a></li>
+<li><a href="#amat-formula-and-worked-examples"
+id="toc-amat-formula-and-worked-examples">9.3 AMAT Formula and Worked
+Examples</a></li>
+<li><a href="#parameter-sweep-results"
+id="toc-parameter-sweep-results">9.4 Parameter Sweep Results</a></li>
+</ul></li>
+<li><a href="#synthesis-results" id="toc-synthesis-results">10.
+Synthesis Results</a>
+<ul>
+<li><a href="#tool-versions" id="toc-tool-versions">10.1 Tool
+Versions</a></li>
+<li><a href="#base-configuration-1-kib-16-b-read-only"
+id="toc-base-configuration-1-kib-16-b-read-only">10.2 Base Configuration
+(1 KiB / 16 B, Read-Only)</a></li>
+<li><a href="#cache-size-sweep-block-16-b"
+id="toc-cache-size-sweep-block-16-b">10.3 Cache-Size Sweep (Block = 16
+B)</a></li>
+<li><a href="#block-size-sweep-cache-1-kib"
+id="toc-block-size-sweep-cache-1-kib">10.4 Block-Size Sweep (Cache = 1
+KiB)</a></li>
+<li><a href="#write-support-comparison-base-config"
+id="toc-write-support-comparison-base-config">10.5 Write Support
+Comparison (Base Config)</a></li>
+<li><a href="#timing-fmax" id="toc-timing-fmax">10.6 Timing
+(Fmax)</a></li>
+<li><a href="#area-analysis" id="toc-area-analysis">10.7 Area
+Analysis</a></li>
+</ul></li>
+<li><a href="#comparison-and-tradeoff-analysis"
+id="toc-comparison-and-tradeoff-analysis">11. Comparison and Tradeoff
+Analysis</a>
+<ul>
+<li><a href="#cache-size-vs.-hit-ratio"
+id="toc-cache-size-vs.-hit-ratio">11.1 Cache Size vs. Hit Ratio</a></li>
+<li><a href="#block-size-vs.-amat-tradeoff"
+id="toc-block-size-vs.-amat-tradeoff">11.2 Block Size vs. AMAT
+Tradeoff</a></li>
+<li><a href="#row-major-vs.-column-major-matrix-traversal"
+id="toc-row-major-vs.-column-major-matrix-traversal">11.3 Row-Major
+vs. Column-Major Matrix Traversal</a></li>
+<li><a href="#direct-mapped-vs.-fully-associative-shadow"
+id="toc-direct-mapped-vs.-fully-associative-shadow">11.4 Direct-Mapped
+vs. Fully Associative Shadow</a></li>
+</ul></li>
+<li><a href="#limitations-and-future-work"
+id="toc-limitations-and-future-work">12. Limitations and Future Work</a>
+<ul>
+<li><a href="#current-limitations" id="toc-current-limitations">12.1
+Current Limitations</a></li>
+<li><a href="#future-extensions" id="toc-future-extensions">12.2 Future
+Extensions</a></li>
+</ul></li>
+<li><a href="#references" id="toc-references">13. References</a></li>
+<li><a href="#appendix-a-key-verilog-module-listings"
+id="toc-appendix-a-key-verilog-module-listings">Appendix A: Key Verilog
+Module Listings</a>
+<ul>
+<li><a href="#a.1-cache-controller-fsm-rtlcache_controller.v"
+id="toc-a.1-cache-controller-fsm-rtlcache_controller.v">A.1 Cache
+Controller FSM (<code>rtl/cache_controller.v</code>)</a></li>
+<li><a href="#a.2-cache-top-rtlcache_top.v"
+id="toc-a.2-cache-top-rtlcache_top.v">A.2 Cache Top
+(<code>rtl/cache_top.v</code>)</a></li>
+<li><a href="#a.3-address-decoder-rtladdr_decoder.v"
+id="toc-a.3-address-decoder-rtladdr_decoder.v">A.3 Address Decoder
+(<code>rtl/addr_decoder.v</code>)</a></li>
+<li><a href="#a.4-tag-comparator-rtltag_comparator.v"
+id="toc-a.4-tag-comparator-rtltag_comparator.v">A.4 Tag Comparator
+(<code>rtl/tag_comparator.v</code>)</a></li>
+<li><a href="#a.5-data-ram-rtldata_ram.v"
+id="toc-a.5-data-ram-rtldata_ram.v">A.5 Data RAM
+(<code>rtl/data_ram.v</code>)</a></li>
+<li><a href="#a.6-tag-ram-rtltag_ram.v"
+id="toc-a.6-tag-ram-rtltag_ram.v">A.6 Tag RAM
+(<code>rtl/tag_ram.v</code>)</a></li>
+<li><a href="#a.7-valid-ram-rtlvalid_ram.v"
+id="toc-a.7-valid-ram-rtlvalid_ram.v">A.7 Valid RAM
+(<code>rtl/valid_ram.v</code>)</a></li>
+<li><a href="#a.8-main-memory-rtlmain_memory.v"
+id="toc-a.8-main-memory-rtlmain_memory.v">A.8 Main Memory
+(<code>rtl/main_memory.v</code>)</a></li>
+</ul></li>
+<li><a href="#appendix-b-reproduction-commands"
+id="toc-appendix-b-reproduction-commands">Appendix B: Reproduction
+Commands</a>
+<ul>
+<li><a href="#b.1-trace-generation" id="toc-b.1-trace-generation">B.1
+Trace Generation</a></li>
+<li><a href="#b.2-reference-model-analysis"
+id="toc-b.2-reference-model-analysis">B.2 Reference-Model
+Analysis</a></li>
+<li><a href="#b.3-rtl-verification" id="toc-b.3-rtl-verification">B.3
+RTL Verification</a></li>
+<li><a href="#b.4-synthesis" id="toc-b.4-synthesis">B.4
+Synthesis</a></li>
+<li><a href="#b.5-waveform-viewing" id="toc-b.5-waveform-viewing">B.5
+Waveform Viewing</a></li>
+<li><a href="#b.6-tool-requirements" id="toc-b.6-tool-requirements">B.6
+Tool Requirements</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="direct-mapped-cache-controller">Direct-Mapped Cache
+Controller</h1>
+<h2
+id="design-verification-and-architectural-analysis-in-verilog">Design,
+Verification, and Architectural Analysis in Verilog</h2>
+<hr />
+<p><strong>Course:</strong> MCA Capstone Project — Computer
+Architecture</p>
+<p><strong>Team Members:</strong> - M1 — Architect, Controller FSM, Top
+Integration - M2 — Storage Datapath - M3 — Narendra Singh — Main Memory
+Interface, Synthesis - M4 — Verification - M5 — Traces, Analysis,
+Report</p>
+<p><strong>Date:</strong> November 2026</p>
+<hr />
+<h2 id="abstract">Abstract</h2>
+<p>This report presents the design, implementation, verification, and
+architectural evaluation of a parameterized direct-mapped cache
+controller implemented in synthesizable Verilog. The cache hierarchy
+sits between a CPU issuing 32-bit word-aligned memory requests and a
+behavioural main-memory model with configurable latency. The baseline
+configuration employs a 1 KiB cache with 16-byte blocks, yielding 64
+cache lines, a 22-bit tag, 6-bit index, and 4-bit block offset. The
+controller FSM achieves a one-cycle hit time through Mealy outputs and
+asynchronous RAM reads, and services misses via a four-word sequential
+refill handshake with the memory, incurring a 22-cycle miss latency for
+the default memory latency of four cycles. Verification is performed
+through a 10-case directed self-checking testbench targeting reset
+behaviour, spatial and temporal locality, conflict misses, stale data,
+counters, and cycle-accurate latencies, complemented by trace-driven
+co-simulation against a bit-accurate Python golden reference model.
+Fault injection confirms that all three deliberately introduced RTL
+mutations are detected. Seven deterministic memory-access
+traces—sequential, uniform random, repeated loop, phased stride,
+row-major matrix, column-major matrix, and mixed workload—exercise
+spatial locality, temporal locality, capacity pressure, and
+direct-mapped conflict behaviour. Performance analysis yields hit ratios
+ranging from 0% (column-major, stride) to 99.22% (loop), with AMAT
+values from 1.164 to 22.000 cycles. A parameter sweep across cache sizes
+(512 B–4 KiB) and block sizes (8–64 B) quantifies the cache-size
+vs. hit-ratio and block-size vs. AMAT tradeoffs. Synthesis via Yosys
+targets generic gates, Xilinx 7-series, and Lattice iCE40, demonstrating
+that the data RAM dominates area (82.2% of generic cells at the
+baseline) and that asynchronous reads preclude block RAM mapping, a
+deliberate design choice for one-cycle hit time. Timing analysis on
+iCE40 HX8K with a registered-input block-RAM variant reports 83–89
+MHz.</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="#1-introduction">Introduction</a></li>
+<li><a href="#2-system-architecture">System Architecture</a></li>
+<li><a href="#3-address-breakdown">Address Breakdown</a></li>
+<li><a href="#4-cache-controller-fsm">Cache Controller FSM</a></li>
+<li><a href="#5-storage-datapath">Storage Datapath</a></li>
+<li><a href="#6-main-memory-model">Main Memory Model</a></li>
+<li><a href="#7-verification-methodology">Verification
+Methodology</a></li>
+<li><a href="#8-workload-design-and-trace-generation">Workload Design
+and Trace Generation</a></li>
+<li><a href="#9-performance-results">Performance Results</a></li>
+<li><a href="#10-synthesis-results">Synthesis Results</a></li>
+<li><a href="#11-comparison-and-tradeoff-analysis">Comparison and
+Tradeoff Analysis</a></li>
+<li><a href="#12-limitations-and-future-work">Limitations and Future
+Work</a></li>
+<li><a href="#13-references">References</a></li>
+<li><a href="#appendix-a-key-verilog-module-listings">Appendix A: Key
+Verilog Module Listings</a></li>
+<li><a href="#appendix-b-reproduction-commands">Appendix B: Reproduction
+Commands</a></li>
+</ol>
+<hr />
+<h2 id="introduction">1. Introduction</h2>
+<h3 id="the-memory-hierarchy-problem">1.1 The Memory Hierarchy
+Problem</h3>
+<p>Modern processors execute instructions at rates that far exceed the
+access time of main memory. A single DRAM access may take tens to
+hundreds of processor clock cycles, creating a severe performance
+bottleneck known as the <em>processor–memory gap</em>. The memory
+hierarchy—a series of progressively larger and slower storage
+levels—exploits the principle of locality to bridge this gap. Caches,
+positioned between the processor and main memory, store recently
+accessed data in fast SRAM or register-based storage, providing the
+illusion of a memory that is simultaneously large and fast.</p>
+<h3 id="locality-of-reference">1.2 Locality of Reference</h3>
+<p>The effectiveness of caching rests on two fundamental properties of
+program behaviour:</p>
+<ul>
+<li><strong>Temporal locality:</strong> Data accessed recently is likely
+to be accessed again soon. Iterative loops, frequently called
+subroutines, and stack variables all exhibit this behaviour.</li>
+<li><strong>Spatial locality:</strong> Data stored near recently
+accessed locations is likely to be accessed next. Sequential instruction
+fetches, array traversals, and structure accesses exploit spatial
+locality.</li>
+</ul>
+<p>A well-designed cache captures both forms of locality: temporal
+locality is served by keeping recently accessed blocks resident, and
+spatial locality is exploited by fetching multi-word blocks on each
+miss, so that neighbouring words are already present for subsequent
+accesses.</p>
+<h3 id="project-motivation-and-scope">1.3 Project Motivation and
+Scope</h3>
+<p>This capstone project implements a <strong>direct-mapped cache
+controller</strong> in Verilog and evaluates its cache hit/miss
+behaviour using representative memory-access traces. The design targets
+the following objectives:</p>
+<ol type="1">
+<li>Correctly implement cache lookup (tag comparison with valid-bit
+gating) and block refill (word-by-word memory handshake).</li>
+<li>Maintain valid-bit semantics so that uninitialised tag RAM contents
+never produce false hits.</li>
+<li>Count hits and misses accurately, with exactly one classification
+pulse per request.</li>
+<li>Evaluate the impact of workload locality and cache parameters (cache
+size, block size) on hit ratio and Average Memory Access Time
+(AMAT).</li>
+<li>Synthesize the design and analyze area, resource utilisation, and
+timing characteristics.</li>
+</ol>
+<p>The baseline configuration uses a 1 KiB cache with 16-byte blocks and
+read-only operation. Write-through with no-write-allocate is implemented
+as an optional stretch feature behind a compile-time parameter.</p>
+<hr />
+<h2 id="system-architecture">2. System Architecture</h2>
+<h3 id="block-diagram">2.1 Block Diagram</h3>
+<p>The system architecture is illustrated in the block diagram below.
+The CPU interface connects to <code>cache_top</code>, which internally
+instantiates the address decoder, three storage RAMs, the tag
+comparator, and the cache controller FSM. The main memory model is
+external to <code>cache_top</code> and is connected through the
+memory-side handshake interface.</p>
+<figure>
+<img src="../docs/architecture_block_diagram.svg"
+alt="System Architecture Block Diagram" />
+<figcaption aria-hidden="true">System Architecture Block
+Diagram</figcaption>
+</figure>
+<h3 id="module-hierarchy">2.2 Module Hierarchy</h3>
+<pre><code>testbench
+├── cache_top
+│   ├── addr_decoder      — splits cpu_addr into tag / index / offset / word_sel
+│   ├── tag_ram            — stores the tag of the block in each cache line
+│   ├── valid_ram          — one valid bit per line, synchronous reset clears all
+│   ├── data_ram           — holds cached data blocks, word-granular writes
+│   ├── tag_comparator     — hit = valid &amp; (stored_tag == request_tag)
+│   └── cache_controller   — FSM: IDLE, REFILL, RESPOND, WRITE
+└── main_memory            — behavioural simulation model (not synthesised)</code></pre>
+<h3 id="cpu-side-interface-cache_top">2.3 CPU-Side Interface
+(<code>cache_top</code>)</h3>
+<p>All signals follow the interface contract frozen on Day 1 of the
+project (plan.md §4.1).</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Direction</th>
+<th>Width</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>clk</code></td>
+<td>in</td>
+<td>1</td>
+<td>System clock</td>
+</tr>
+<tr>
+<td><code>rst_n</code></td>
+<td>in</td>
+<td>1</td>
+<td>Active-low synchronous reset. Clears all valid bits on
+assertion</td>
+</tr>
+<tr>
+<td><code>cpu_valid</code></td>
+<td>in</td>
+<td>1</td>
+<td>Request valid. <code>cpu_addr</code>, <code>cpu_we</code>,
+<code>cpu_wdata</code> are stable until <code>cpu_ready</code></td>
+</tr>
+<tr>
+<td><code>cpu_we</code></td>
+<td>in</td>
+<td>1</td>
+<td>0 = read, 1 = write (baseline: always 0)</td>
+</tr>
+<tr>
+<td><code>cpu_addr</code></td>
+<td>in</td>
+<td>32</td>
+<td>Byte address (word-aligned; <code>addr[1:0]</code> ignored)</td>
+</tr>
+<tr>
+<td><code>cpu_wdata</code></td>
+<td>in</td>
+<td>32</td>
+<td>Write data (stretch goal only)</td>
+</tr>
+<tr>
+<td><code>cpu_rdata</code></td>
+<td>out</td>
+<td>32</td>
+<td>Read data, valid in the <code>cpu_ready = 1</code> cycle</td>
+</tr>
+<tr>
+<td><code>cpu_ready</code></td>
+<td>out</td>
+<td>1</td>
+<td>Request complete — one-cycle pulse</td>
+</tr>
+<tr>
+<td><code>stat_hit</code></td>
+<td>out</td>
+<td>1</td>
+<td>One-cycle pulse when the request is classified as a hit</td>
+</tr>
+<tr>
+<td><code>stat_miss</code></td>
+<td>out</td>
+<td>1</td>
+<td>One-cycle pulse when the request is classified as a miss</td>
+</tr>
+<tr>
+<td><code>hit_count</code></td>
+<td>out</td>
+<td>32</td>
+<td>Running counter of hits since reset</td>
+</tr>
+<tr>
+<td><code>miss_count</code></td>
+<td>out</td>
+<td>32</td>
+<td>Running counter of misses since reset</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Rule:</strong> For every request, exactly one of
+<code>stat_hit</code> or <code>stat_miss</code> pulses. The refill’s
+internal re-lookup does not generate a second pulse.</p>
+<h3 id="memory-side-interface-cache_top-main_memory">2.4 Memory-Side
+Interface (<code>cache_top</code> ↔︎ <code>main_memory</code>)</h3>
+<p>Word-by-word handshake protocol (plan.md §4.2):</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Direction (cache view)</th>
+<th>Width</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mem_req</code></td>
+<td>out</td>
+<td>1</td>
+<td>Request active; held high with <code>mem_addr</code> stable until
+<code>mem_ack</code></td>
+</tr>
+<tr>
+<td><code>mem_we</code></td>
+<td>out</td>
+<td>1</td>
+<td>0 = read, 1 = write (stretch: write-through)</td>
+</tr>
+<tr>
+<td><code>mem_addr</code></td>
+<td>out</td>
+<td>32</td>
+<td>Word-aligned byte address</td>
+</tr>
+<tr>
+<td><code>mem_wdata</code></td>
+<td>out</td>
+<td>32</td>
+<td>Write data (stretch goal)</td>
+</tr>
+<tr>
+<td><code>mem_rdata</code></td>
+<td>in</td>
+<td>32</td>
+<td>Read data, valid in the <code>mem_ack = 1</code> cycle</td>
+</tr>
+<tr>
+<td><code>mem_ack</code></td>
+<td>in</td>
+<td>1</td>
+<td>One-cycle pulse, arriving <code>MEM_LATENCY</code> cycles after
+request</td>
+</tr>
+</tbody>
+</table>
+<p>On a miss, the controller issues requests for all words of the block
+starting from the block-aligned base address: <code>addr</code>,
+<code>addr+4</code>, <code>addr+8</code>, <code>addr+12</code> (for a
+16-byte block).</p>
+<h3 id="internal-sub-module-interfaces">2.5 Internal Sub-Module
+Interfaces</h3>
+<pre><code>addr_decoder   : in  addr[31:0]
+                 out tag[TAG_W-1:0], index[INDEX_W-1:0],
+                     offset[OFF_W-1:0], word_sel[WSEL_W-1:0]
+
+tag_ram        : clk, index (read) → tag_out       // async read, sync write
+                 we, w_index, w_tag
+
+valid_ram      : clk, rst_n, index (read) → valid_out  // reset clears all, async read
+                 we, w_index, w_valid
+
+data_ram       : clk, index → rd_block[BLOCK_BITS-1:0]  // async read, full block
+                 we, w_index, w_word_sel, w_word[31:0]   // word-granular sync write
+
+tag_comparator : in tag_a, tag_b, valid  →  out hit      // hit = valid &amp; (tag_a == tag_b)</code></pre>
+<h3 id="design-parameters">2.6 Design Parameters</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ADDR_W</code></td>
+<td>32</td>
+<td>Address width in bits</td>
+</tr>
+<tr>
+<td><code>CACHE_BYTES</code></td>
+<td>1024</td>
+<td>Total cache capacity</td>
+</tr>
+<tr>
+<td><code>BLOCK_BYTES</code></td>
+<td>16</td>
+<td>Bytes per cache block</td>
+</tr>
+<tr>
+<td><code>WRITE_SUPPORT</code></td>
+<td>0</td>
+<td>0 = read-only, 1 = write-through + no-write-allocate</td>
+</tr>
+<tr>
+<td><code>MEM_LATENCY</code></td>
+<td>4</td>
+<td>Main memory access latency in cycles (≥1)</td>
+</tr>
+<tr>
+<td><code>MEM_WORDS</code></td>
+<td>65536</td>
+<td>Main memory size in 32-bit words (256 KiB)</td>
+</tr>
+</tbody>
+</table>
+<p>All modules are fully parameterized using <code>$clog2</code> for
+derived widths; no hard-coded constants appear in any RTL file.</p>
+<hr />
+<h2 id="address-breakdown">3. Address Breakdown</h2>
+<h3 id="field-derivation">3.1 Field Derivation</h3>
+<p>For a direct-mapped cache with <code>CACHE_BYTES</code> capacity and
+<code>BLOCK_BYTES</code>-wide blocks, the 32-bit byte address is
+partitioned into three fields:</p>
+<pre><code> 31                         10 9          4 3        0
++-----------------------------+------------+----------+
+|        tag (22 bits)        | index (6)  | offset(4)|
++-----------------------------+------------+----------+
+                                              \_ [3:2] = word_sel (which 32-bit word)
+                                                 [1:0] = byte in word (ignored)</code></pre>
+<p><strong>Formulas:</strong></p>
+<pre><code>NUM_LINES  = CACHE_BYTES / BLOCK_BYTES         = 1024 / 16 = 64
+OFF_W      = log₂(BLOCK_BYTES)                 = log₂(16)  = 4
+INDEX_W    = log₂(NUM_LINES)                   = log₂(64)  = 6
+TAG_W      = ADDR_W − INDEX_W − OFF_W          = 32 − 6 − 4 = 22
+WORDS/BLK  = BLOCK_BYTES / 4                   = 16 / 4    = 4
+WSEL_W     = OFF_W − 2                         = 4 − 2     = 2</code></pre>
+<p>The offset selects a byte within the block;
+<code>word_sel = addr[3:2]</code> selects which 32-bit word. The index
+selects one of 64 cache lines. The tag identifies which memory block
+currently occupies that line. Since
+<code>OFF_W + INDEX_W = log₂(CACHE_BYTES)</code>, the tag is simply
+<code>addr &gt;&gt; log₂(CACHE_BYTES)</code>. Two addresses exactly
+<code>CACHE_BYTES</code> (1 KiB) apart always have the same index and
+different tags—the conflict-miss condition.</p>
+<h3 id="parameter-sensitivity">3.2 Parameter Sensitivity</h3>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr>
+<th>CACHE_BYTES</th>
+<th>BLOCK_BYTES</th>
+<th>Lines</th>
+<th>OFF_W</th>
+<th>INDEX_W</th>
+<th>TAG_W</th>
+<th>Words/blk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>512</td>
+<td>8</td>
+<td>64</td>
+<td>3</td>
+<td>6</td>
+<td>23</td>
+<td>2</td>
+</tr>
+<tr>
+<td>512</td>
+<td>16</td>
+<td>32</td>
+<td>4</td>
+<td>5</td>
+<td>23</td>
+<td>4</td>
+</tr>
+<tr>
+<td>1024</td>
+<td>8</td>
+<td>128</td>
+<td>3</td>
+<td>7</td>
+<td>22</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>1024</strong></td>
+<td><strong>16</strong></td>
+<td><strong>64</strong></td>
+<td><strong>4</strong></td>
+<td><strong>6</strong></td>
+<td><strong>22</strong></td>
+<td><strong>4</strong></td>
+</tr>
+<tr>
+<td>1024</td>
+<td>32</td>
+<td>32</td>
+<td>5</td>
+<td>5</td>
+<td>22</td>
+<td>8</td>
+</tr>
+<tr>
+<td>1024</td>
+<td>64</td>
+<td>16</td>
+<td>6</td>
+<td>4</td>
+<td>22</td>
+<td>16</td>
+</tr>
+<tr>
+<td>2048</td>
+<td>16</td>
+<td>128</td>
+<td>4</td>
+<td>7</td>
+<td>21</td>
+<td>4</td>
+</tr>
+<tr>
+<td>4096</td>
+<td>16</td>
+<td>256</td>
+<td>4</td>
+<td>8</td>
+<td>20</td>
+<td>4</td>
+</tr>
+<tr>
+<td>4096</td>
+<td>64</td>
+<td>64</td>
+<td>6</td>
+<td>6</td>
+<td>20</td>
+<td>16</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Rules of thumb:</strong> - Bigger block → offset grows, index
+shrinks (fewer lines), tag unchanged. More spatial exploitation but
+longer miss penalty and more potential conflicts. - Bigger cache → index
+grows, tag shrinks. Fewer evictions but more storage area. - Tag
+overhead per line = <code>(TAG_W + 1) / (BLOCK_BYTES × 8)</code>. Base
+config: <code>23 / 128 ≈ 18%</code>.</p>
+<h3 id="worked-examples-base-configuration">3.3 Worked Examples (Base
+Configuration)</h3>
+<p><strong>Address <code>0x00001A2C</code></strong> =
+<code>0000_0000_0000_0000_0001_1010_0010_1100₂</code></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Bits</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tag</td>
+<td>[31:10]</td>
+<td><code>0x6</code> (<code>00_0000_0000_0000_0000_0110</code>)</td>
+</tr>
+<tr>
+<td>Index</td>
+<td>[9:4]</td>
+<td><code>0x22</code> = 34 (<code>100010</code>)</td>
+</tr>
+<tr>
+<td>Offset</td>
+<td>[3:0]</td>
+<td><code>0xC</code> = 12 (<code>1100</code>)</td>
+</tr>
+<tr>
+<td><code>word_sel</code></td>
+<td>[3:2]</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Block base address</td>
+<td>addr with offset zeroed</td>
+<td><code>0x00001A20</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Verification:</strong> <code>0x1A2C &gt;&gt; 10 = 6</code>,
+<code>(0x1A2C &gt;&gt; 4) &amp; 0x3F = 0x1A2 &amp; 0x3F = 0x22</code>,
+<code>0x1A2C &amp; 0xF = 0xC</code>. ✓</p>
+<h4 id="example-a-cold-miss-first-access-after-reset">Example A: Cold
+Miss (First Access After Reset)</h4>
+<ol type="1">
+<li>Request <code>0x1A2C</code>. Index = 34. <code>valid[34] = 0</code>
+after reset → <strong>MISS</strong> (even if tag RAM happens to hold
+6).</li>
+<li>Controller refills line 34 with four words: <code>0x1A20</code>,
+<code>0x1A24</code>, <code>0x1A28</code>, <code>0x1A2C</code>.</li>
+<li><code>tag_ram[34] = 6</code> and <code>valid[34] = 1</code> are
+written together with the last word.</li>
+<li>CPU receives word 3 of the block (the word at
+<code>0x1A2C</code>).</li>
+</ol>
+<h4 id="example-b-hit-spatial-locality">Example B: Hit (Spatial
+Locality)</h4>
+<p>Request <code>0x00001A28</code> immediately after Example A: tag = 6,
+index = 34, offset = 8, <code>word_sel</code> = 2.
+<code>valid[34] = 1</code> and stored tag 6 equals request tag 6 →
+<strong>HIT</strong>, answered in one cycle. The same applies to
+<code>0x1A20</code> and <code>0x1A24</code>: one miss brought in all
+four words.</p>
+<h4 id="example-c-conflict-miss">Example C: Conflict Miss</h4>
+<p>Request <code>0x00001E2C</code> (= <code>0x1A2C + 0x400</code>): tag
+= 7, index = 34, offset = 12. Line 34 is valid, but stored tag is 6, not
+7 → <strong>MISS</strong>. The line is refilled with block
+<code>0x1E20..0x1E2C</code> and tag 7 replaces tag 6. A subsequent
+access to <code>0x1A2C</code> misses again (tag 6 was evicted).
+Alternating between these two addresses produces 100% misses—the
+<strong>ping-pong</strong> pathology of direct-mapped caches.</p>
+<hr />
+<h2 id="cache-controller-fsm">4. Cache Controller FSM</h2>
+<h3 id="state-diagram">4.1 State Diagram</h3>
+<pre class="mermaid"><code>stateDiagram-v2
+    [*] --&gt; IDLE : reset
+    IDLE --&gt; IDLE : no request, or read hit (cpu_ready=1, stat_hit)
+    IDLE --&gt; REFILL : read miss (stat_miss)
+    IDLE --&gt; WRITE : write (only if WRITE_SUPPORT=1)
+    REFILL --&gt; REFILL : mem_ack and not last word (word_cnt+1)
+    REFILL --&gt; RESPOND : mem_ack and last word (tag+valid written)
+    RESPOND --&gt; IDLE : cpu_ready=1
+    WRITE --&gt; WRITE : waiting for mem_ack
+    WRITE --&gt; IDLE : mem_ack (cpu_ready=1)</code></pre>
+<h3 id="state-purpose">4.2 State Purpose</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>State</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>IDLE</strong></td>
+<td>Tag compare is combinational, so a hit can be answered in the same
+cycle. A miss is detected and counted here (<code>stat_miss</code>
+pulse), then the FSM transitions out, preventing double-counting.</td>
+</tr>
+<tr>
+<td><strong>REFILL</strong></td>
+<td>Main memory returns one word per
+<code>mem_req</code>/<code>mem_ack</code> handshake. A loop of W
+handshakes (<code>word_cnt</code> 0..W−1) fills the entire block.</td>
+</tr>
+<tr>
+<td><strong>RESPOND</strong></td>
+<td>Data and tag/valid are written at the clock edge after the last ack.
+<code>data_ram</code> is read asynchronously, so one cycle later the
+requested word can be delivered. <code>cpu_ready</code> is asserted
+here, with no stat pulse.</td>
+</tr>
+<tr>
+<td><strong>WRITE</strong></td>
+<td>Only active when <code>WRITE_SUPPORT=1</code>: write-through to
+memory, waiting for ack.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="state-transition-table">4.3 State Transition Table</h3>
+<p><code>hit</code> = valid AND tag match for the current
+<code>cpu_addr</code>. <code>last</code> =
+<code>word_cnt == WORDS_PER_BLOCK − 1</code>.</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>State</th>
+<th>Condition</th>
+<th>Outputs (all others 0)</th>
+<th>Next State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IDLE</td>
+<td><code>!cpu_valid</code></td>
+<td>—</td>
+<td>IDLE</td>
+</tr>
+<tr>
+<td>IDLE</td>
+<td><code>cpu_valid &amp; hit &amp; !is_write</code></td>
+<td><code>stat_hit</code>, <code>cpu_ready</code></td>
+<td>IDLE</td>
+</tr>
+<tr>
+<td>IDLE</td>
+<td><code>cpu_valid &amp; !hit &amp; !is_write</code></td>
+<td><code>stat_miss</code></td>
+<td>REFILL</td>
+</tr>
+<tr>
+<td>IDLE</td>
+<td><code>cpu_valid &amp; hit &amp; is_write</code> (WS=1)</td>
+<td><code>stat_hit</code>, <code>data_we</code> (cpu data)</td>
+<td>WRITE</td>
+</tr>
+<tr>
+<td>IDLE</td>
+<td><code>cpu_valid &amp; !hit &amp; is_write</code> (WS=1)</td>
+<td><code>stat_miss</code> (no allocate)</td>
+<td>WRITE</td>
+</tr>
+<tr>
+<td>REFILL</td>
+<td><code>!mem_ack</code></td>
+<td><code>mem_req</code>, <code>data_wsel=word_cnt</code></td>
+<td>REFILL</td>
+</tr>
+<tr>
+<td>REFILL</td>
+<td><code>mem_ack &amp; !last</code></td>
+<td><code>mem_req</code>, <code>data_we</code> (word
+<code>word_cnt</code>)</td>
+<td>REFILL, <code>word_cnt+1</code></td>
+</tr>
+<tr>
+<td>REFILL</td>
+<td><code>mem_ack &amp; last</code></td>
+<td><code>mem_req</code>, <code>data_we</code>, <code>tag_we</code>,
+<code>valid_we</code></td>
+<td>RESPOND</td>
+</tr>
+<tr>
+<td>RESPOND</td>
+<td>always</td>
+<td><code>cpu_ready</code></td>
+<td>IDLE</td>
+</tr>
+<tr>
+<td>WRITE</td>
+<td><code>!mem_ack</code></td>
+<td><code>mem_req</code>, <code>mem_we</code></td>
+<td>WRITE</td>
+</tr>
+<tr>
+<td>WRITE</td>
+<td><code>mem_ack</code></td>
+<td><code>mem_req</code>, <code>mem_we</code>,
+<code>cpu_ready</code></td>
+<td>IDLE</td>
+</tr>
+</tbody>
+</table>
+<p><code>is_write = (WRITE_SUPPORT != 0) &amp;&amp; cpu_we</code>. With
+<code>WRITE_SUPPORT=0</code>, a request with <code>cpu_we=1</code> is
+handled as a read.</p>
+<h3 id="mealy-vs.-moore-justification">4.4 Mealy vs. Moore
+Justification</h3>
+<p>The controller uses <strong>Mealy outputs</strong>:
+<code>cpu_ready</code>, <code>stat_hit</code>, and
+<code>stat_miss</code> depend on inputs (<code>cpu_valid</code>,
+<code>hit</code>, <code>mem_ack</code>) in the same cycle. This is
+necessary for the one-cycle hit requirement—a Moore FSM would register
+the hit result first and add one cycle to every hit. There is no
+combinational loop because <code>hit</code> is derived from RAMs and the
+comparator, which are not driven by any output of the controller in the
+same cycle.</p>
+<h3 id="cycle-by-cycle-miss-timeline">4.5 Cycle-by-Cycle Miss
+Timeline</h3>
+<p>Configuration: <code>MEM_LATENCY = 4</code>, request address
+<code>0x1A2C</code>.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Cycle</th>
+<th>State</th>
+<th><code>mem_req</code></th>
+<th><code>mem_ack</code></th>
+<th><code>mem_addr</code></th>
+<th>Events</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>IDLE</td>
+<td>0</td>
+<td>0</td>
+<td>—</td>
+<td>Request arrives, tag compare fails: <strong><code>stat_miss</code>
+pulse</strong></td>
+</tr>
+<tr>
+<td>1</td>
+<td>REFILL</td>
+<td>1</td>
+<td>0</td>
+<td><code>0x1A20</code></td>
+<td>Word 0 requested</td>
+</tr>
+<tr>
+<td>2–4</td>
+<td>REFILL</td>
+<td>1</td>
+<td>0</td>
+<td><code>0x1A20</code></td>
+<td>Waiting for memory</td>
+</tr>
+<tr>
+<td>5</td>
+<td>REFILL</td>
+<td>1</td>
+<td><strong>1</strong></td>
+<td><code>0x1A20</code></td>
+<td>Word 0 received and written (<code>data_we</code>)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>REFILL</td>
+<td>1</td>
+<td>0</td>
+<td><code>0x1A24</code></td>
+<td>Word 1 requested</td>
+</tr>
+<tr>
+<td>7–9</td>
+<td>REFILL</td>
+<td>1</td>
+<td>0</td>
+<td><code>0x1A24</code></td>
+<td>Waiting</td>
+</tr>
+<tr>
+<td>10</td>
+<td>REFILL</td>
+<td>1</td>
+<td><strong>1</strong></td>
+<td><code>0x1A24</code></td>
+<td>Word 1 written</td>
+</tr>
+<tr>
+<td>11</td>
+<td>REFILL</td>
+<td>1</td>
+<td>0</td>
+<td><code>0x1A28</code></td>
+<td>Word 2 requested</td>
+</tr>
+<tr>
+<td>12–14</td>
+<td>REFILL</td>
+<td>1</td>
+<td>0</td>
+<td><code>0x1A28</code></td>
+<td>Waiting</td>
+</tr>
+<tr>
+<td>15</td>
+<td>REFILL</td>
+<td>1</td>
+<td><strong>1</strong></td>
+<td><code>0x1A28</code></td>
+<td>Word 2 written</td>
+</tr>
+<tr>
+<td>16</td>
+<td>REFILL</td>
+<td>1</td>
+<td>0</td>
+<td><code>0x1A2C</code></td>
+<td>Word 3 requested</td>
+</tr>
+<tr>
+<td>17–19</td>
+<td>REFILL</td>
+<td>1</td>
+<td>0</td>
+<td><code>0x1A2C</code></td>
+<td>Waiting</td>
+</tr>
+<tr>
+<td>20</td>
+<td>REFILL</td>
+<td>1</td>
+<td><strong>1</strong></td>
+<td><code>0x1A2C</code></td>
+<td>Word 3 written; <strong><code>tag_we</code> +
+<code>valid_we</code></strong></td>
+</tr>
+<tr>
+<td>21</td>
+<td>RESPOND</td>
+<td>0</td>
+<td>0</td>
+<td>—</td>
+<td><strong><code>cpu_ready</code></strong> pulse;
+<code>cpu_rdata</code> = word 3</td>
+</tr>
+<tr>
+<td>22</td>
+<td>IDLE</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>Next request (e.g., <code>0x1A28</code>) → <strong>hit</strong> in
+this cycle</td>
+</tr>
+</tbody>
+</table>
+<p>The corresponding waveform is captured in:</p>
+<figure>
+<img src="../docs/waveforms/waveform_cold_miss.svg"
+alt="Cold Miss + Refill Waveform" />
+<figcaption aria-hidden="true">Cold Miss + Refill Waveform</figcaption>
+</figure>
+<h3 id="miss-penalty-formula-derivation">4.6 Miss Penalty Formula
+Derivation</h3>
+<p>Latency is defined as cycles from <code>cpu_valid</code> assertion up
+to and including the <code>cpu_ready</code> cycle.</p>
+<pre><code>hit_latency       = 1                                        (hit time)
+
+miss_latency      = 1 (IDLE detect) + W × (L + 1) + 1 (RESPOND)
+                  = W × (L + 1) + 2
+
+miss_penalty      = miss_latency − hit_time
+                  = W × (L + 1) + 1</code></pre>
+<p>Where <code>W</code> = words per block, <code>L</code> =
+<code>MEM_LATENCY</code>.</p>
+<p><strong>Base configuration</strong> (<code>W = 4</code>,
+<code>L = 4</code>): miss latency = <code>4 × 5 + 2 = 22</code> cycles;
+miss penalty = <strong>21 cycles</strong>.</p>
+<p>The <code>L + 1</code> per word arises because in the ack cycle the
+word is stored, and the next word’s address can only be presented in the
+following cycle. The fixed 2-cycle overhead comprises the IDLE cycle
+(miss detection) and the RESPOND cycle (data delivery).</p>
+<table>
+<thead>
+<tr>
+<th>MEM_LATENCY</th>
+<th>Miss Latency</th>
+<th>Miss Penalty</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>10</td>
+<td>9</td>
+</tr>
+<tr>
+<td>4</td>
+<td>22</td>
+<td>21</td>
+</tr>
+<tr>
+<td>10</td>
+<td>46</td>
+<td>45</td>
+</tr>
+</tbody>
+</table>
+<h3 id="write-support-optional-write_support1">4.7 Write Support
+(Optional, <code>WRITE_SUPPORT=1</code>)</h3>
+<p>Write-through, no-write-allocate: - <strong>Write hit:</strong> The
+word is updated in the cache (IDLE cycle) and written through to memory
+(WRITE state). Classified as hit. - <strong>Write miss:</strong> Only
+written to memory; the line is not allocated. Classified as miss. -
+<strong>Write latency:</strong> <code>1 (IDLE) + (L + 1) (WRITE)</code>
+= <code>L + 2</code> cycles. For <code>L = 4</code>: 6 cycles.</p>
+<hr />
+<h2 id="storage-datapath">5. Storage Datapath</h2>
+<h3 id="module-specifications">5.1 Module Specifications</h3>
+<p>Base config: <code>ADDR_W=32, CACHE_BYTES=1024, BLOCK_BYTES=16</code>
+→
+<code>INDEX_W=6, TAG_W=22, OFF_W=4, WSEL_W=2, BLOCK_BITS=128</code>.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>Module</th>
+<th>Parameters</th>
+<th>Function</th>
+<th>Key Ports</th>
+<th>Timing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>addr_decoder</code></td>
+<td><code>ADDR_W, CACHE_BYTES, BLOCK_BYTES</code></td>
+<td>Splits address into tag/index/offset/word_sel</td>
+<td><code>addr</code> → <code>tag, index, offset, word_sel</code></td>
+<td>Combinational (wires only)</td>
+</tr>
+<tr>
+<td><code>tag_ram</code></td>
+<td><code>INDEX_W, TAG_W</code></td>
+<td>Stores tag per line</td>
+<td>Async read: <code>index</code> → <code>tag_out</code>; Sync write:
+<code>we, w_index, w_tag</code></td>
+<td>Async read, sync write</td>
+</tr>
+<tr>
+<td><code>valid_ram</code></td>
+<td><code>INDEX_W</code></td>
+<td>One valid bit per line</td>
+<td>Async read: <code>index</code> → <code>valid_out</code>; Sync write
++ reset</td>
+<td>Reset clears all bits in one cycle</td>
+</tr>
+<tr>
+<td><code>data_ram</code></td>
+<td><code>INDEX_W, BLOCK_BYTES</code></td>
+<td>Cached data blocks</td>
+<td>Async read: <code>index</code> → <code>rd_block</code>; Sync
+word-granular write</td>
+<td>Async read, sync write</td>
+</tr>
+<tr>
+<td><code>tag_comparator</code></td>
+<td><code>TAG_W</code></td>
+<td>Hit detection</td>
+<td><code>tag_a, tag_b, valid</code> → <code>hit</code></td>
+<td>Combinational</td>
+</tr>
+</tbody>
+</table>
+<h3 id="design-decisions">5.2 Design Decisions</h3>
+<ul>
+<li><strong>No hard-coded sizes.</strong> Every width derives from
+parameters through <code>$clog2</code>. The design compiles and
+functions correctly for all combinations of
+<code>CACHE_BYTES ∈ {512, 1K, 2K, 4K}</code> and
+<code>BLOCK_BYTES ∈ {8, 16, 32, 64}</code>.</li>
+<li><strong>Only <code>valid_ram</code> has a reset.</strong> Tag and
+data contents are meaningless while the valid bit is 0, so resetting
+them would add logic and prevent RAM-primitive mapping.</li>
+<li><strong><code>valid_ram</code> uses a flat bit-vector</strong>
+(<code>reg [DEPTH-1:0] valid_bits</code>), not a memory array, so all 64
+bits can be cleared in one cycle. Reset has priority over a write in the
+same cycle.</li>
+<li><strong>Word-granular write in <code>data_ram</code>:</strong>
+<code>mem[w_index][w_word_sel*32 +: 32] &lt;= w_word</code> ensures the
+controller fills one word per memory ack without corrupting other words
+of the block.</li>
+<li><strong>Asynchronous reads</strong> are required for one-cycle hits:
+<code>index → RAM read → tag compare → cpu_ready</code> must complete
+within a single clock cycle.</li>
+<li><strong>Latch-free:</strong> No <code>always @(*)</code> blocks in
+storage modules. Everything is either <code>assign</code>
+(combinational) or <code>always @(posedge clk)</code> (sequential).</li>
+</ul>
+<h3 id="word-storage-convention">5.3 Word Storage Convention</h3>
+<p>Word <code>w</code> of a block occupies
+<code>rd_block[w×32 +: 32]</code> (word 0 = lowest address).
+<code>cache_top</code> uses the same convention when selecting
+<code>cpu_rdata</code>:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode verilog"><code class="sourceCode verilog"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">assign</span> cpu_rdata <span class="op">=</span> rd_block<span class="op">[</span>word_sel*<span class="dv">32</span> <span class="op">+:</span> <span class="dv">32</span><span class="op">];</span></span></code></pre></div>
+<h3 id="synthesis-mapping-implications">5.4 Synthesis Mapping
+Implications</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Storage</th>
+<th>Bits (Base Config)</th>
+<th>FPGA Mapping</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>data_ram</code></td>
+<td>64 × 128 = 8,192</td>
+<td>LUTRAM (Xilinx) or flip-flops (iCE40)</td>
+<td>Async read prevents block RAM mapping</td>
+</tr>
+<tr>
+<td><code>tag_ram</code></td>
+<td>64 × 22 = 1,408</td>
+<td>LUTRAM / FFs</td>
+<td>Same reason; small</td>
+</tr>
+<tr>
+<td><code>valid_ram</code></td>
+<td>64 × 1 = 64</td>
+<td>Flip-flops</td>
+<td>Needs one-cycle clear of all bits; no RAM primitive supports
+this</td>
+</tr>
+<tr>
+<td><code>addr_decoder</code></td>
+<td>0</td>
+<td>Wires only</td>
+<td>Pure bit slicing</td>
+</tr>
+<tr>
+<td><code>tag_comparator</code></td>
+<td>0</td>
+<td>~22 XNOR + AND tree</td>
+<td>Equality compare</td>
+</tr>
+</tbody>
+</table>
+<p>To enable block RAM mapping, one would register the read address, but
+this would increase hit time to 2 cycles—a fundamental design tradeoff
+discussed in §10.5.</p>
+<hr />
+<h2 id="main-memory-model">6. Main Memory Model</h2>
+<h3 id="behavioural-model">6.1 Behavioural Model</h3>
+<p>The main memory is a <strong>simulation-only</strong> behavioural
+model; it is not part of the synthesized <code>cache_top</code>. It
+models the slow level below the cache (DRAM or bus) and provides
+deterministic data for verification.</p>
+<h3 id="parameters-and-ports">6.2 Parameters and Ports</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MEM_WORDS</code></td>
+<td>65536</td>
+<td>32-bit words (256 KiB total)</td>
+</tr>
+<tr>
+<td><code>MEM_LATENCY</code></td>
+<td>4</td>
+<td>Cycles from request to ack (minimum 1; 0 treated as 1)</td>
+</tr>
+<tr>
+<td><code>STRICT_RDATA</code></td>
+<td>0</td>
+<td>1 = <code>mem_rdata</code> is X outside ack cycles (debug aid)</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Port</th>
+<th>Direction</th>
+<th>Width</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>clk</code>, <code>rst_n</code></td>
+<td>in</td>
+<td>1, 1</td>
+<td>Clock and active-low synchronous reset</td>
+</tr>
+<tr>
+<td><code>mem_req</code></td>
+<td>in</td>
+<td>1</td>
+<td>Request, held high until <code>mem_ack</code></td>
+</tr>
+<tr>
+<td><code>mem_we</code></td>
+<td>in</td>
+<td>1</td>
+<td>0 = read, 1 = write</td>
+</tr>
+<tr>
+<td><code>mem_addr</code></td>
+<td>in</td>
+<td>32</td>
+<td>Byte address; <code>addr[1:0]</code> ignored</td>
+</tr>
+<tr>
+<td><code>mem_wdata</code></td>
+<td>in</td>
+<td>32</td>
+<td>Write data</td>
+</tr>
+<tr>
+<td><code>mem_rdata</code></td>
+<td>out</td>
+<td>32</td>
+<td>Read data, valid in ack cycle</td>
+</tr>
+<tr>
+<td><code>mem_ack</code></td>
+<td>out</td>
+<td>1</td>
+<td>One-cycle pulse</td>
+</tr>
+<tr>
+<td><code>mem_read_count</code></td>
+<td>out</td>
+<td>32</td>
+<td>Completed word reads since reset</td>
+</tr>
+<tr>
+<td><code>mem_write_count</code></td>
+<td>out</td>
+<td>32</td>
+<td>Completed word writes since reset</td>
+</tr>
+</tbody>
+</table>
+<h3 id="handshake-protocol">6.3 Handshake Protocol</h3>
+<pre><code>cycle      0    1    2    3    4    5    6        (MEM_LATENCY = 4)
+mem_req    _____/‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾\____
+mem_ack    _________________________/‾‾‾‾\____
+mem_rdata  -------------------------&lt; D  &gt;----</code></pre>
+<ul>
+<li><code>mem_ack</code> pulses <code>MEM_LATENCY</code> cycles after
+<code>mem_req</code> is first seen.</li>
+<li><strong>Back-to-back words:</strong> The ack cycle completes the old
+request. A new request begins in the following cycle with a fresh
+latency count. Each word of a refill thus costs
+<code>MEM_LATENCY + 1</code> cycles—the source of
+<code>W × (L + 1)</code> in the miss-penalty formula.</li>
+<li>Dropping <code>mem_req</code> before ack cancels the request.</li>
+</ul>
+<h3 id="contents-formula">6.4 Contents Formula</h3>
+<pre><code>mem[word_addr] = word_addr × 0x9E3779B1    (32-bit unsigned multiply, wrap-around)
+word_addr      = mem_addr[31:2] % MEM_WORDS</code></pre>
+<p>This multiplicative hash ensures every word has a unique,
+deterministic value computable from its address alone. Both the Verilog
+testbench and the Python golden model use the same formula, eliminating
+the need for a data file.</p>
+<h3 id="cross-check">6.5 Cross-Check</h3>
+<p>For read-only runs:
+<code>mem_read_count == miss_count × (BLOCK_BYTES / 4)</code>. This
+equality is verified in <code>tb_m3_cache_mem.v</code> across multiple
+configurations.</p>
+<hr />
+<h2 id="verification-methodology">7. Verification Methodology</h2>
+<h3 id="verification-strategy">7.1 Verification Strategy</h3>
+<p>Verification employs two complementary environments:</p>
+<ol type="1">
+<li><strong>Directed self-checking testbench</strong>
+(<code>tb/tb_cache_directed.v</code>): Targeted sequences systematically
+exercise corner cases.</li>
+<li><strong>Trace-driven co-simulation</strong>
+(<code>tb/tb_cache_trace.v</code> +
+<code>analysis/golden_model.py</code>): Real and synthetic traces are
+run through both RTL and a bit-accurate Python model. Results are
+compared access-by-access using <code>analysis/compare.py</code>.</li>
+</ol>
+<pre><code>                  +---------------------------+
+                  |  Memory Trace (.trace)    |
+                  +-------------+-------------+
+                                |
+                +---------------+---------------+
+                |                               |
+                v                               v
+    +-----------------------+       +-----------------------+
+    | RTL Simulation (VVP)  |       | Python Golden Model   |
+    | (cache_top + memory)  |       | (golden_model.py)     |
+    +-----------+-----------+       +-----------+-----------+
+                |                               |
+                v                               v
+    +-----------------------+       +-----------------------+
+    | sim_results.csv       |       | golden_results.csv    |
+    +-----------+-----------+       +-----------+-----------+
+                |                               |
+                +---------------+---------------+
+                                |
+                                v
+                    +-----------------------+
+                    |  analysis/compare.py  |
+                    |  (exact match check)  |
+                    +-----------------------+</code></pre>
+<h3 id="test-plan-matrix">7.2 Test Plan Matrix</h3>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>Test ID</th>
+<th>Test Name</th>
+<th>Stimulus</th>
+<th>Validates</th>
+<th>Bug Caught</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TC-01</td>
+<td>Cold start reset</td>
+<td>Read <code>0x00000000</code> after reset</td>
+<td>Valid bits = 0; must MISS even with tag 0</td>
+<td>Uninitialised valid RAM false hit</td>
+</tr>
+<tr>
+<td>TC-02</td>
+<td>Temporal locality</td>
+<td>Re-read <code>0x00000000</code></td>
+<td>Refilled line is valid and matches</td>
+<td>Missing <code>valid_we</code> or <code>tag_we</code></td>
+</tr>
+<tr>
+<td>TC-03</td>
+<td>Spatial locality</td>
+<td>Read <code>0x04</code>, <code>0x08</code>, <code>0x0C</code></td>
+<td>16-byte refill populates all 4 words; 3 HITs</td>
+<td>Refill writing only requested word</td>
+</tr>
+<tr>
+<td>TC-04</td>
+<td>Non-zero word offset</td>
+<td>Read <code>0x1008</code> (word 2) cold</td>
+<td>Block-aligned base address calculation</td>
+<td>Offset bug in memory request</td>
+</tr>
+<tr>
+<td>TC-05</td>
+<td>Conflict misses</td>
+<td>Alternate <code>0x2010</code> / <code>0x2410</code></td>
+<td>Direct-mapped eviction; 100% misses</td>
+<td>Ignoring tag mismatch</td>
+</tr>
+<tr>
+<td>TC-06</td>
+<td>Stale data check</td>
+<td>Read evicted line’s remaining words</td>
+<td>New line completely overwrites old</td>
+<td>Data write-enable corruption</td>
+</tr>
+<tr>
+<td>TC-07</td>
+<td>Capacity sweep</td>
+<td>Read all 64 lines, re-read all</td>
+<td>All indices function independently</td>
+<td>Index decoder width fault</td>
+</tr>
+<tr>
+<td>TC-08</td>
+<td>Mid-test reset</td>
+<td>Reset during active operation</td>
+<td>All valid bits and counters cleared</td>
+<td>Missing reset logic</td>
+</tr>
+<tr>
+<td>TC-09</td>
+<td>Counter &amp; pulse</td>
+<td>Monitor <code>stat_hit/miss</code>, counters</td>
+<td><code>hit_count + miss_count == total</code>; pulses never
+overlap</td>
+<td>Double-pulse or missing pulse</td>
+</tr>
+<tr>
+<td>TC-10</td>
+<td>Cycle latency</td>
+<td>Measure <code>cpu_valid</code> to <code>cpu_ready</code></td>
+<td>Hit = 1 cycle; Miss = 22 cycles</td>
+<td>Extra wait states or early ready</td>
+</tr>
+</tbody>
+</table>
+<h3 id="directed-test-timing-verification">7.3 Directed Test Timing
+Verification</h3>
+<p><strong>Hit timing (1 cycle):</strong> Mealy output structure in
+<code>S_IDLE</code>. Because tag comparison and RAM lookups are
+combinational, <code>hit</code> is available in the same cycle
+<code>cpu_valid</code> is asserted: - Cycle 1: <code>cpu_valid=1</code>
+→ <code>hit=1</code> → <code>cpu_ready=1</code>,
+<code>stat_hit=1</code>, <code>cpu_rdata</code> valid. Latency = 1
+cycle.</p>
+<p><strong>Miss timing (22 cycles for base config):</strong> - Cycle 1
+(<code>S_IDLE</code>): miss detection, <code>stat_miss=1</code>. -
+Cycles 2–6 through 17–21 (<code>S_REFILL</code>): four words × 5 cycles
+each. - Cycle 22 (<code>S_RESPOND</code>): <code>cpu_ready=1</code>.</p>
+<h3 id="waveform-evidence">7.4 Waveform Evidence</h3>
+<p>Three waveform captures are provided:</p>
+<ol type="1">
+<li><p><strong>Cold Miss + Refill:</strong> <img
+src="../docs/waveforms/waveform_cold_miss.svg"
+alt="Cold Miss Waveform" /> Shows <code>stat_miss</code> pulse in
+<code>S_IDLE</code>, four sequential memory reads in
+<code>S_REFILL</code>, <code>valid_we</code> on word 3, and
+<code>cpu_ready</code> in <code>S_RESPOND</code> at cycle 22.</p></li>
+<li><p><strong>Spatial Hits:</strong> <img
+src="../docs/waveforms/waveform_spatial_hits.svg"
+alt="Spatial Hits Waveform" /> Four sequential word requests within the
+same cached block; each hits in <code>S_IDLE</code> with 1-cycle
+latency, no memory access.</p></li>
+<li><p><strong>Conflict Misses:</strong> <img
+src="../docs/waveforms/waveform_conflict_miss.svg"
+alt="Conflict Miss Waveform" /> Ping-pong between <code>0x2010</code>
+and <code>0x2410</code> (same index, different tags). Every access
+triggers an eviction and refill, demonstrating 100% miss rate.</p></li>
+</ol>
+<h3 id="mutation-analysis-fault-injection">7.5 Mutation Analysis (Fault
+Injection)</h3>
+<p>Deliberate bugs were injected into the RTL to verify test quality.
+All mutations were detected:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Injected Bug</th>
+<th>Module</th>
+<th>Caught By</th>
+<th>Failures</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Valid-bit reset sets all bits to 1</td>
+<td><code>valid_ram.v</code></td>
+<td>TC-08</td>
+<td>4 errors</td>
+</tr>
+<tr>
+<td>Comparator ignores valid bit
+(<code>hit = tag_a == tag_b</code>)</td>
+<td><code>tag_comparator.v</code></td>
+<td>TC-08</td>
+<td>4 errors</td>
+</tr>
+<tr>
+<td>Comparator truncated (upper bits only)</td>
+<td><code>tag_comparator.v</code></td>
+<td>TC-04, TC-05, TC-06</td>
+<td>17 errors</td>
+</tr>
+<tr>
+<td><code>data_ram</code> always writes word 0</td>
+<td><code>data_ram.v</code></td>
+<td>TB <code>tb_data_ram</code></td>
+<td>FAIL</td>
+</tr>
+<tr>
+<td>Decoder index shifted by one bit</td>
+<td><code>addr_decoder.v</code></td>
+<td>TB <code>tb_addr_decoder</code></td>
+<td>FAIL</td>
+</tr>
+<tr>
+<td>Memory ack one cycle late</td>
+<td><code>main_memory.v</code></td>
+<td><code>tb_main_memory</code></td>
+<td>FAIL</td>
+</tr>
+<tr>
+<td>Wrong hash constant</td>
+<td><code>main_memory.v</code></td>
+<td><code>tb_main_memory</code></td>
+<td>FAIL</td>
+</tr>
+<tr>
+<td>Ack stays high for 2 cycles</td>
+<td><code>main_memory.v</code></td>
+<td><code>tb_main_memory</code></td>
+<td>FAIL</td>
+</tr>
+</tbody>
+</table>
+<h3 id="functional-coverage-summary">7.6 Functional Coverage
+Summary</h3>
+<ul>
+<li><strong>Address decoding:</strong> All 64 cache indices, all 4 word
+offsets, tags spanning small and large addresses.</li>
+<li><strong>FSM states:</strong> All reachable states exercised
+(<code>S_IDLE</code>, <code>S_REFILL</code>,
+<code>S_RESPOND</code>).</li>
+<li><strong>Memory handshake:</strong> Back-to-back request/ack sequence
+verified across 4-word refill blocks.</li>
+<li><strong>Statistics:</strong> Pulse mutual exclusion and counter
+integrity verified for 100% of test accesses.</li>
+</ul>
+<hr />
+<h2 id="workload-design-and-trace-generation">8. Workload Design and
+Trace Generation</h2>
+<h3 id="trace-format">8.1 Trace Format</h3>
+<p>Each trace file follows plan.md §4.4: one access per line, two
+hexadecimal fields: <code>&lt;op&gt; &lt;addr&gt;</code>.
+<code>op = 0</code> for read. All addresses are word-aligned, 32-bit,
+within <code>0x00000000–0x0003FFFF</code> (256 KiB).</p>
+<pre><code>0 00001a2c
+0 00001a30
+0 00002000</code></pre>
+<h3 id="regeneration">8.2 Regeneration</h3>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> traces/gen_traces.py <span class="at">--count</span> 4096 <span class="at">--seed</span> 20261116</span></code></pre></div>
+<p>Fixed seed ensures reproducibility. The default count of 4096 ensures
+both matrix traversals visit the same complete set of elements.</p>
+<h3 id="seven-workloads">8.3 Seven Workloads</h3>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>#</th>
+<th>Trace</th>
+<th>Pattern</th>
+<th>Locality Examined</th>
+<th>Expected Behaviour (1 KiB / 16 B)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>seq.trace</code></td>
+<td>Consecutive 32-bit words</td>
+<td>Spatial locality</td>
+<td>1 miss + 3 hits per new line → 75% hit ratio</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>random.trace</code></td>
+<td>Uniform random over 256 KiB</td>
+<td>Weak spatial/temporal</td>
+<td>Very low hit ratio; footprint &gt;&gt; cache</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>loop.trace</code></td>
+<td>Repeated shuffled 512 B set</td>
+<td>Temporal locality</td>
+<td>32 lines fit in 64-line cache → ~99% hit ratio</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>stride.trace</code></td>
+<td>16 B phase, 64 B phase, then alternating 1 KiB-apart addresses</td>
+<td>Spatial gaps + direct-map conflicts</td>
+<td>Ping-pong addresses share index → 100% miss in final phase</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>matrix_row.trace</code></td>
+<td>64×64 matrix, row-major</td>
+<td>Spatial locality</td>
+<td>Consecutive words share cache blocks</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>matrix_col.trace</code></td>
+<td>Same matrix, column-major</td>
+<td>Same data, different order</td>
+<td>256 B row stride causes conflict misses</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>mixed.trace</code></td>
+<td>85% hot set (96 words) + 15% random</td>
+<td>Mixed temporal + cold traffic</td>
+<td>Most hot-set blocks fit; random can evict</td>
+</tr>
+</tbody>
+</table>
+<p>The row-major and column-major traces visit the same complete set of
+4096 words; only traversal order changes. This isolates the effect of
+access pattern on a direct-mapped cache with identical data.</p>
+<hr />
+<h2 id="performance-results">9. Performance Results</h2>
+<h3 id="hitmiss-summary-python-reference-model">9.1 Hit/Miss Summary
+(Python Reference Model)</h3>
+<p>Configuration: 1 KiB cache, 16 B block, <code>MEM_LATENCY = 4</code>,
+4096 accesses per trace.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr>
+<th>Trace</th>
+<th style="text-align: right;">Accesses</th>
+<th style="text-align: right;">Hits</th>
+<th style="text-align: right;">Misses</th>
+<th style="text-align: right;">Hit Ratio</th>
+<th style="text-align: right;">Miss Ratio</th>
+<th style="text-align: right;">Compulsory</th>
+<th style="text-align: right;">Conflict</th>
+<th style="text-align: right;">Capacity</th>
+<th style="text-align: right;">AMAT (cycles)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sequential</td>
+<td style="text-align: right;">4096</td>
+<td style="text-align: right;">3072</td>
+<td style="text-align: right;">1024</td>
+<td style="text-align: right;">75.00%</td>
+<td style="text-align: right;">25.00%</td>
+<td style="text-align: right;">1024</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6.250</td>
+</tr>
+<tr>
+<td>Random</td>
+<td style="text-align: right;">4096</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">4077</td>
+<td style="text-align: right;">0.46%</td>
+<td style="text-align: right;">99.54%</td>
+<td style="text-align: right;">3616</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">459</td>
+<td style="text-align: right;">21.903</td>
+</tr>
+<tr>
+<td>Loop</td>
+<td style="text-align: right;">4096</td>
+<td style="text-align: right;">4064</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">99.22%</td>
+<td style="text-align: right;">0.78%</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.164</td>
+</tr>
+<tr>
+<td>Stride</td>
+<td style="text-align: right;">4096</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4096</td>
+<td style="text-align: right;">0.00%</td>
+<td style="text-align: right;">100.00%</td>
+<td style="text-align: right;">2390</td>
+<td style="text-align: right;">1364</td>
+<td style="text-align: right;">342</td>
+<td style="text-align: right;">22.000</td>
+</tr>
+<tr>
+<td>Matrix row</td>
+<td style="text-align: right;">4096</td>
+<td style="text-align: right;">3072</td>
+<td style="text-align: right;">1024</td>
+<td style="text-align: right;">75.00%</td>
+<td style="text-align: right;">25.00%</td>
+<td style="text-align: right;">1024</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6.250</td>
+</tr>
+<tr>
+<td>Matrix column</td>
+<td style="text-align: right;">4096</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4096</td>
+<td style="text-align: right;">0.00%</td>
+<td style="text-align: right;">100.00%</td>
+<td style="text-align: right;">1024</td>
+<td style="text-align: right;">3072</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">22.000</td>
+</tr>
+<tr>
+<td>Mixed</td>
+<td style="text-align: right;">4096</td>
+<td style="text-align: right;">3253</td>
+<td style="text-align: right;">843</td>
+<td style="text-align: right;">79.42%</td>
+<td style="text-align: right;">20.58%</td>
+<td style="text-align: right;">618</td>
+<td style="text-align: right;">217</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">5.322</td>
+</tr>
+</tbody>
+</table>
+<h3 id="three-c-miss-classification">9.2 Three-C Miss
+Classification</h3>
+<p>Misses are classified using the standard three-C taxonomy:</p>
+<ul>
+<li><strong>Compulsory (cold):</strong> First access to a block.
+Unavoidable regardless of cache size or associativity.</li>
+<li><strong>Conflict:</strong> Misses that would have been hits in an
+equal-capacity fully associative LRU cache. These are inherent to the
+direct-mapped organization.</li>
+<li><strong>Capacity:</strong> Misses that occur even in a fully
+associative cache of the same size, indicating the working set exceeds
+cache capacity.</li>
+</ul>
+<p>The classification uses an analytically simulated fully associative
+LRU shadow of equal capacity. This is not additional hardware.</p>
+<p><strong>Key observations:</strong> - <strong>Sequential and
+matrix-row</strong> traces have only compulsory misses—no conflict or
+capacity misses. Spatial locality is fully exploited. -
+<strong>Column-major</strong> produces 3072 conflict misses out of 4096
+total misses. The 256-byte row stride causes different rows to compete
+for the same direct-mapped index. A fully associative cache of the same
+size would eliminate these entirely. - <strong>Stride</strong> suffers
+from a combination of compulsory, conflict (1364), and capacity (342)
+misses, driven by its deliberate ping-pong phase. -
+<strong>Loop</strong> has only 32 compulsory misses, as its 512 B
+working set fits entirely within the 1 KiB cache.</p>
+<h3 id="amat-formula-and-worked-examples">9.3 AMAT Formula and Worked
+Examples</h3>
+<pre><code>AMAT = hit_time + miss_rate × miss_penalty
+     = 1 + miss_rate × 21    (for W=4, L=4)</code></pre>
+<p>Where <code>miss_penalty = W × (L + 1) + 1 = 4 × 5 + 1 = 21</code>
+cycles.</p>
+<h4 id="worked-example-1-sequential-trace">Worked Example 1: Sequential
+Trace</h4>
+<pre><code>miss_rate = 1024 / 4096 = 0.25
+AMAT = 1 + 0.25 × 21 = 1 + 5.25 = 6.25 cycles</code></pre>
+<p>Every four consecutive word accesses span one 16-byte block: the
+first access is a compulsory miss (22 cycles), and the next three are
+hits (1 cycle each). Average: <code>(22 + 1 + 1 + 1) / 4 = 6.25</code>
+cycles. ✓</p>
+<h4 id="worked-example-2-loop-trace">Worked Example 2: Loop Trace</h4>
+<pre><code>miss_rate = 32 / 4096 = 0.0078125
+AMAT = 1 + 0.0078125 × 21 = 1 + 0.164 = 1.164 cycles</code></pre>
+<p>After the 32 compulsory misses fill the working set, all subsequent
+accesses hit. The working set (512 B = 32 blocks) fits entirely in the
+64-line cache.</p>
+<h4 id="worked-example-3-column-major-matrix">Worked Example 3:
+Column-Major Matrix</h4>
+<pre><code>miss_rate = 4096 / 4096 = 1.0
+AMAT = 1 + 1.0 × 21 = 22.0 cycles</code></pre>
+<p>Every access misses. The 256-byte row stride means consecutive column
+accesses map to cache lines that conflict. Unlike the row-major
+traversal (75% hit ratio), the column-major traversal achieves 0%
+hits.</p>
+<h3 id="parameter-sweep-results">9.4 Parameter Sweep Results</h3>
+<p>The analyser sweeps cache sizes {512 B, 1 KiB, 2 KiB, 4 KiB} × block
+sizes {8 B, 16 B, 32 B, 64 B} for all seven traces, generating CSV
+tables and plots.</p>
+<figure>
+<img src="../analysis/results/hit_ratio_by_trace.png"
+alt="Hit Ratio by Trace" />
+<figcaption aria-hidden="true">Hit Ratio by Trace</figcaption>
+</figure>
+<figure>
+<img src="../analysis/results/hit_ratio_vs_cache_size.png"
+alt="Hit Ratio vs. Cache Size" />
+<figcaption aria-hidden="true">Hit Ratio vs. Cache Size</figcaption>
+</figure>
+<figure>
+<img src="../analysis/results/hit_ratio_vs_block_size.png"
+alt="Hit Ratio vs. Block Size" />
+<figcaption aria-hidden="true">Hit Ratio vs. Block Size</figcaption>
+</figure>
+<figure>
+<img src="../analysis/results/amat_vs_block_size.png"
+alt="AMAT vs. Block Size" />
+<figcaption aria-hidden="true">AMAT vs. Block Size</figcaption>
+</figure>
+<hr />
+<h2 id="synthesis-results">10. Synthesis Results</h2>
+<h3 id="tool-versions">10.1 Tool Versions</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Version</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Yosys</td>
+<td>0.71</td>
+<td>Synthesis: generic gates, Xilinx 7-series, Lattice iCE40</td>
+</tr>
+<tr>
+<td>nextpnr-ice40</td>
+<td>0.11.1</td>
+<td>Place-and-route + static timing (Fmax) on iCE40 HX8K</td>
+</tr>
+<tr>
+<td>Icarus Verilog</td>
+<td>13.0</td>
+<td>Simulation only</td>
+</tr>
+</tbody>
+</table>
+<p>Vivado and Quartus are not installed; no vendor utilization or timing
+reports are available. Xilinx numbers below are Yosys
+<code>synth_xilinx</code> cell counts.</p>
+<p><strong>Note:</strong> <code>main_memory.v</code> is not
+synthesized—it is a behavioural testbench model. The synthesis top
+module is <code>cache_top</code>.</p>
+<h3 id="base-configuration-1-kib-16-b-read-only">10.2 Base Configuration
+(1 KiB / 16 B, Read-Only)</h3>
+<h4 id="generic-gates-synth-per-module">Generic Gates
+(<code>synth</code>), Per Module</h4>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th style="text-align: right;">Cells</th>
+<th style="text-align: right;">Flip-Flops</th>
+<th>Share of Cells</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>data_ram</code></td>
+<td style="text-align: right;">22,441</td>
+<td style="text-align: right;">8,192</td>
+<td>82.2%</td>
+</tr>
+<tr>
+<td><code>tag_ram</code></td>
+<td style="text-align: right;">3,909</td>
+<td style="text-align: right;">1,408</td>
+<td>14.3%</td>
+</tr>
+<tr>
+<td><code>valid_ram</code></td>
+<td style="text-align: right;">528</td>
+<td style="text-align: right;">64</td>
+<td>1.9%</td>
+</tr>
+<tr>
+<td><code>cache_top</code> (counters, word mux, addr mux)</td>
+<td style="text-align: right;">324</td>
+<td style="text-align: right;">64</td>
+<td>1.2%</td>
+</tr>
+<tr>
+<td><code>tag_comparator</code></td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">0</td>
+<td>0.3%</td>
+</tr>
+<tr>
+<td><code>cache_controller</code></td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">5</td>
+<td>0.1%</td>
+</tr>
+<tr>
+<td><code>addr_decoder</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td>0.0%</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>27,313</strong></td>
+<td style="text-align: right;"><strong>9,733</strong></td>
+<td><strong>100%</strong></td>
+</tr>
+</tbody>
+</table>
+<h4 id="fpga-targets">FPGA Targets</h4>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Target</th>
+<th>Logic LUTs</th>
+<th>Memory</th>
+<th>Flip-Flops</th>
+<th>Carry</th>
+<th>Block RAM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Xilinx 7-series (<code>synth_xilinx</code>)</td>
+<td>312 (LUT2–LUT6)</td>
+<td>150 × <code>RAM64X1S</code> = 150 LUTs as RAM</td>
+<td>133 <code>FDRE</code></td>
+<td>18 <code>CARRY4</code></td>
+<td>0</td>
+</tr>
+<tr>
+<td>Lattice iCE40 (<code>synth_ice40</code>)</td>
+<td>8,996 <code>SB_LUT4</code></td>
+<td>none (flip-flops)</td>
+<td>9,733 <code>SB_DFF*</code></td>
+<td>65 <code>SB_CARRY</code></td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cache-size-sweep-block-16-b">10.3 Cache-Size Sweep (Block = 16
+B)</h3>
+<h4 id="storage-bits-calculated">Storage Bits (Calculated)</h4>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr>
+<th>Cache (B)</th>
+<th>Block (B)</th>
+<th>Lines</th>
+<th>Index Bits</th>
+<th>Tag Bits/Line</th>
+<th>Data Bits</th>
+<th>Tag Bits</th>
+<th>Valid Bits</th>
+<th>Overhead %</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>512</td>
+<td>16</td>
+<td>32</td>
+<td>5</td>
+<td>23</td>
+<td>4,096</td>
+<td>736</td>
+<td>32</td>
+<td>18.8</td>
+</tr>
+<tr>
+<td><strong>1024</strong></td>
+<td><strong>16</strong></td>
+<td><strong>64</strong></td>
+<td><strong>6</strong></td>
+<td><strong>22</strong></td>
+<td><strong>8,192</strong></td>
+<td><strong>1,408</strong></td>
+<td><strong>64</strong></td>
+<td><strong>18.0</strong></td>
+</tr>
+<tr>
+<td>2048</td>
+<td>16</td>
+<td>128</td>
+<td>7</td>
+<td>21</td>
+<td>16,384</td>
+<td>2,688</td>
+<td>128</td>
+<td>17.2</td>
+</tr>
+<tr>
+<td>4096</td>
+<td>16</td>
+<td>256</td>
+<td>8</td>
+<td>20</td>
+<td>32,768</td>
+<td>5,120</td>
+<td>256</td>
+<td>16.4</td>
+</tr>
+</tbody>
+</table>
+<h4 id="generic-cells">Generic Cells</h4>
+<table>
+<colgroup>
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 6%" />
+</colgroup>
+<thead>
+<tr>
+<th>Cache (B)</th>
+<th>Block (B)</th>
+<th style="text-align: right;">Cells</th>
+<th style="text-align: right;">FFs</th>
+<th style="text-align: right;">Comb.</th>
+<th style="text-align: right;"><code>data_ram</code></th>
+<th style="text-align: right;"><code>tag_ram</code></th>
+<th style="text-align: right;"><code>valid_ram</code></th>
+<th style="text-align: right;">Comparator</th>
+<th style="text-align: right;">Controller</th>
+<th style="text-align: right;">Top</th>
+<th><code>data_ram</code> %</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>512</td>
+<td>16</td>
+<td style="text-align: right;">13,973</td>
+<td style="text-align: right;">4,933</td>
+<td style="text-align: right;">9,040</td>
+<td style="text-align: right;">11,262</td>
+<td style="text-align: right;">2,013</td>
+<td style="text-align: right;">265</td>
+<td style="text-align: right;">78</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">324</td>
+<td>80.6%</td>
+</tr>
+<tr>
+<td><strong>1024</strong></td>
+<td><strong>16</strong></td>
+<td style="text-align: right;"><strong>27,313</strong></td>
+<td style="text-align: right;"><strong>9,733</strong></td>
+<td style="text-align: right;"><strong>17,580</strong></td>
+<td style="text-align: right;"><strong>22,441</strong></td>
+<td style="text-align: right;"><strong>3,909</strong></td>
+<td style="text-align: right;"><strong>528</strong></td>
+<td style="text-align: right;"><strong>80</strong></td>
+<td style="text-align: right;"><strong>31</strong></td>
+<td style="text-align: right;"><strong>324</strong></td>
+<td><strong>82.2%</strong></td>
+</tr>
+<tr>
+<td>2048</td>
+<td>16</td>
+<td style="text-align: right;">54,329</td>
+<td style="text-align: right;">19,269</td>
+<td style="text-align: right;">35,060</td>
+<td style="text-align: right;">45,300</td>
+<td style="text-align: right;">7,467</td>
+<td style="text-align: right;">1,129</td>
+<td style="text-align: right;">78</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">324</td>
+<td>83.4%</td>
+</tr>
+<tr>
+<td>4096</td>
+<td>16</td>
+<td style="text-align: right;">107,553</td>
+<td style="text-align: right;">38,213</td>
+<td style="text-align: right;">69,340</td>
+<td style="text-align: right;">90,501</td>
+<td style="text-align: right;">14,309</td>
+<td style="text-align: right;">2,318</td>
+<td style="text-align: right;">70</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">324</td>
+<td>84.1%</td>
+</tr>
+</tbody>
+</table>
+<h4 id="xilinx-7-series">Xilinx 7-Series</h4>
+<table>
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 9%" />
+</colgroup>
+<thead>
+<tr>
+<th>Cache (B)</th>
+<th>Block (B)</th>
+<th style="text-align: right;">Logic LUTs</th>
+<th style="text-align: right;">LUTRAM Cells</th>
+<th style="text-align: right;">LUTs as RAM</th>
+<th style="text-align: right;">FFs</th>
+<th style="text-align: right;">CARRY4</th>
+<th style="text-align: right;">BRAM</th>
+<th>LUTRAM Primitives</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>512</td>
+<td>16</td>
+<td style="text-align: right;">252</td>
+<td style="text-align: right;">131</td>
+<td style="text-align: right;">524</td>
+<td style="text-align: right;">101</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0</td>
+<td>RAM32M:131</td>
+</tr>
+<tr>
+<td><strong>1024</strong></td>
+<td><strong>16</strong></td>
+<td style="text-align: right;"><strong>312</strong></td>
+<td style="text-align: right;"><strong>150</strong></td>
+<td style="text-align: right;"><strong>150</strong></td>
+<td style="text-align: right;"><strong>133</strong></td>
+<td style="text-align: right;"><strong>18</strong></td>
+<td style="text-align: right;"><strong>0</strong></td>
+<td><strong>RAM64X1S:150</strong></td>
+</tr>
+<tr>
+<td>2048</td>
+<td>16</td>
+<td style="text-align: right;">417</td>
+<td style="text-align: right;">149</td>
+<td style="text-align: right;">298</td>
+<td style="text-align: right;">197</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0</td>
+<td>RAM128X1S:149</td>
+</tr>
+<tr>
+<td>4096</td>
+<td>16</td>
+<td style="text-align: right;">618</td>
+<td style="text-align: right;">148</td>
+<td style="text-align: right;">592</td>
+<td style="text-align: right;">325</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0</td>
+<td>RAM256X1S:148</td>
+</tr>
+</tbody>
+</table>
+<h4 id="lattice-ice40">Lattice iCE40</h4>
+<table>
+<thead>
+<tr>
+<th>Cache (B)</th>
+<th>Block (B)</th>
+<th style="text-align: right;">SB_LUT4</th>
+<th style="text-align: right;">FFs (SB_DFF*)</th>
+<th style="text-align: right;">SB_CARRY</th>
+<th style="text-align: right;">BRAM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>512</td>
+<td>16</td>
+<td style="text-align: right;">4,617</td>
+<td style="text-align: right;">4,933</td>
+<td style="text-align: right;">64</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><strong>1024</strong></td>
+<td><strong>16</strong></td>
+<td style="text-align: right;"><strong>8,996</strong></td>
+<td style="text-align: right;"><strong>9,733</strong></td>
+<td style="text-align: right;"><strong>65</strong></td>
+<td style="text-align: right;"><strong>0</strong></td>
+</tr>
+<tr>
+<td>2048</td>
+<td>16</td>
+<td style="text-align: right;">17,355</td>
+<td style="text-align: right;">19,269</td>
+<td style="text-align: right;">66</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>4096</td>
+<td>16</td>
+<td style="text-align: right;">35,296</td>
+<td style="text-align: right;">38,213</td>
+<td style="text-align: right;">67</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="block-size-sweep-cache-1-kib">10.4 Block-Size Sweep (Cache = 1
+KiB)</h3>
+<h4 id="storage-bits-calculated-1">Storage Bits (Calculated)</h4>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr>
+<th>Cache (B)</th>
+<th>Block (B)</th>
+<th>Lines</th>
+<th>Index Bits</th>
+<th>Tag Bits/Line</th>
+<th>Data Bits</th>
+<th>Tag Bits</th>
+<th>Valid Bits</th>
+<th>Overhead %</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1024</td>
+<td>8</td>
+<td>128</td>
+<td>7</td>
+<td>22</td>
+<td>8,192</td>
+<td>2,816</td>
+<td>128</td>
+<td>35.9</td>
+</tr>
+<tr>
+<td><strong>1024</strong></td>
+<td><strong>16</strong></td>
+<td><strong>64</strong></td>
+<td><strong>6</strong></td>
+<td><strong>22</strong></td>
+<td><strong>8,192</strong></td>
+<td><strong>1,408</strong></td>
+<td><strong>64</strong></td>
+<td><strong>18.0</strong></td>
+</tr>
+<tr>
+<td>1024</td>
+<td>32</td>
+<td>32</td>
+<td>5</td>
+<td>22</td>
+<td>8,192</td>
+<td>704</td>
+<td>32</td>
+<td>9.0</td>
+</tr>
+<tr>
+<td>1024</td>
+<td>64</td>
+<td>16</td>
+<td>4</td>
+<td>22</td>
+<td>8,192</td>
+<td>352</td>
+<td>16</td>
+<td>4.5</td>
+</tr>
+</tbody>
+</table>
+<h4 id="generic-cells-1">Generic Cells</h4>
+<table>
+<colgroup>
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 6%" />
+</colgroup>
+<thead>
+<tr>
+<th>Cache (B)</th>
+<th>Block (B)</th>
+<th style="text-align: right;">Cells</th>
+<th style="text-align: right;">FFs</th>
+<th style="text-align: right;">Comb.</th>
+<th style="text-align: right;"><code>data_ram</code></th>
+<th style="text-align: right;"><code>tag_ram</code></th>
+<th style="text-align: right;"><code>valid_ram</code></th>
+<th style="text-align: right;">Comparator</th>
+<th style="text-align: right;">Controller</th>
+<th style="text-align: right;">Top</th>
+<th><code>data_ram</code> %</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1024</td>
+<td>8</td>
+<td style="text-align: right;">32,015</td>
+<td style="text-align: right;">11,204</td>
+<td style="text-align: right;">20,811</td>
+<td style="text-align: right;">22,701</td>
+<td style="text-align: right;">7,814</td>
+<td style="text-align: right;">1,129</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">259</td>
+<td>70.9%</td>
+</tr>
+<tr>
+<td><strong>1024</strong></td>
+<td><strong>16</strong></td>
+<td style="text-align: right;"><strong>27,313</strong></td>
+<td style="text-align: right;"><strong>9,733</strong></td>
+<td style="text-align: right;"><strong>17,580</strong></td>
+<td style="text-align: right;"><strong>22,441</strong></td>
+<td style="text-align: right;"><strong>3,909</strong></td>
+<td style="text-align: right;"><strong>528</strong></td>
+<td style="text-align: right;"><strong>80</strong></td>
+<td style="text-align: right;"><strong>31</strong></td>
+<td style="text-align: right;"><strong>324</strong></td>
+<td><strong>82.2%</strong></td>
+</tr>
+<tr>
+<td>1024</td>
+<td>32</td>
+<td style="text-align: right;">25,298</td>
+<td style="text-align: right;">8,998</td>
+<td style="text-align: right;">16,300</td>
+<td style="text-align: right;">22,535</td>
+<td style="text-align: right;">1,928</td>
+<td style="text-align: right;">265</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">37</td>
+<td style="text-align: right;">453</td>
+<td>89.1%</td>
+</tr>
+<tr>
+<td>1024</td>
+<td>64</td>
+<td style="text-align: right;">24,527</td>
+<td style="text-align: right;">8,631</td>
+<td style="text-align: right;">15,896</td>
+<td style="text-align: right;">22,274</td>
+<td style="text-align: right;">935</td>
+<td style="text-align: right;">115</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">43</td>
+<td style="text-align: right;">1,080</td>
+<td>90.8%</td>
+</tr>
+</tbody>
+</table>
+<h4 id="xilinx-7-series-1">Xilinx 7-Series</h4>
+<table>
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 9%" />
+</colgroup>
+<thead>
+<tr>
+<th>Cache (B)</th>
+<th>Block (B)</th>
+<th style="text-align: right;">Logic LUTs</th>
+<th style="text-align: right;">LUTRAM Cells</th>
+<th style="text-align: right;">LUTs as RAM</th>
+<th style="text-align: right;">FFs</th>
+<th style="text-align: right;">CARRY4</th>
+<th style="text-align: right;">BRAM</th>
+<th>LUTRAM Primitives</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1024</td>
+<td>8</td>
+<td style="text-align: right;">355</td>
+<td style="text-align: right;">86</td>
+<td style="text-align: right;">172</td>
+<td style="text-align: right;">196</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0</td>
+<td>RAM128X1S:86</td>
+</tr>
+<tr>
+<td><strong>1024</strong></td>
+<td><strong>16</strong></td>
+<td style="text-align: right;"><strong>312</strong></td>
+<td style="text-align: right;"><strong>150</strong></td>
+<td style="text-align: right;"><strong>150</strong></td>
+<td style="text-align: right;"><strong>133</strong></td>
+<td style="text-align: right;"><strong>18</strong></td>
+<td style="text-align: right;"><strong>0</strong></td>
+<td><strong>RAM64X1S:150</strong></td>
+</tr>
+<tr>
+<td>1024</td>
+<td>32</td>
+<td style="text-align: right;">593</td>
+<td style="text-align: right;">259</td>
+<td style="text-align: right;">1,036</td>
+<td style="text-align: right;">102</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0</td>
+<td>RAM32M:259</td>
+</tr>
+<tr>
+<td>1024</td>
+<td>64</td>
+<td style="text-align: right;">1,027</td>
+<td style="text-align: right;">515</td>
+<td style="text-align: right;">2,060</td>
+<td style="text-align: right;">87</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0</td>
+<td>RAM32M:515</td>
+</tr>
+</tbody>
+</table>
+<h4 id="lattice-ice40-1">Lattice iCE40</h4>
+<table>
+<thead>
+<tr>
+<th>Cache (B)</th>
+<th>Block (B)</th>
+<th style="text-align: right;">SB_LUT4</th>
+<th style="text-align: right;">FFs (SB_DFF*)</th>
+<th style="text-align: right;">SB_CARRY</th>
+<th style="text-align: right;">BRAM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1024</td>
+<td>8</td>
+<td style="text-align: right;">10,033</td>
+<td style="text-align: right;">11,204</td>
+<td style="text-align: right;">66</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><strong>1024</strong></td>
+<td><strong>16</strong></td>
+<td style="text-align: right;"><strong>8,996</strong></td>
+<td style="text-align: right;"><strong>9,733</strong></td>
+<td style="text-align: right;"><strong>65</strong></td>
+<td style="text-align: right;"><strong>0</strong></td>
+</tr>
+<tr>
+<td>1024</td>
+<td>32</td>
+<td style="text-align: right;">8,526</td>
+<td style="text-align: right;">8,998</td>
+<td style="text-align: right;">65</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>1024</td>
+<td>64</td>
+<td style="text-align: right;">8,418</td>
+<td style="text-align: right;">8,631</td>
+<td style="text-align: right;">65</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="write-support-comparison-base-config">10.5 Write Support
+Comparison (Base Config)</h3>
+<table>
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr>
+<th><code>WRITE_SUPPORT</code></th>
+<th style="text-align: right;">Generic Cells</th>
+<th style="text-align: right;">Generic FFs</th>
+<th style="text-align: right;">Controller Cells</th>
+<th style="text-align: right;">Xilinx Logic LUTs</th>
+<th style="text-align: right;">iCE40 LUT4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td style="text-align: right;">27,313</td>
+<td style="text-align: right;">9,733</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">312</td>
+<td style="text-align: right;">8,996</td>
+</tr>
+<tr>
+<td>1</td>
+<td style="text-align: right;">27,329</td>
+<td style="text-align: right;">9,734</td>
+<td style="text-align: right;">47</td>
+<td style="text-align: right;">709</td>
+<td style="text-align: right;">9,099</td>
+</tr>
+</tbody>
+</table>
+<p>Write-through costs 16 generic cells and 1 flip-flop (the
+<code>S_WRITE</code> state encoding). The Xilinx increase of 397 LUTs is
+a tool-specific mapping effect.</p>
+<h3 id="timing-fmax">10.6 Timing (Fmax)</h3>
+<p>Timing is from nextpnr-ice40 static timing analysis after routing on
+<strong>iCE40 HX8K</strong> (<code>ct256</code> package, 7680 logic
+cells).</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Memory Implementation</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>512 B / 16 B</td>
+<td>Flip-flops (design as-is)</td>
+<td><strong>Does not fit</strong> (9,616 cells &gt; 7,680
+available)</td>
+</tr>
+<tr>
+<td>1 KiB / 16 B</td>
+<td>Flip-flops (design as-is)</td>
+<td><strong>Does not fit</strong></td>
+</tr>
+<tr>
+<td>512 B / 16 B</td>
+<td>Block RAM (registered inputs)</td>
+<td>909 logic cells, 10 BRAMs, <strong>89.45 MHz</strong></td>
+</tr>
+<tr>
+<td>1 KiB / 16 B</td>
+<td>Block RAM (registered inputs)</td>
+<td>978 logic cells, 10 BRAMs, <strong>83.15 MHz</strong> (seeds: 89.37,
+83.76 MHz)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Critical path</strong> (1 KiB block-RAM, 12.03 ns = 4.70 ns
+logic + 7.32 ns routing): Tag block RAM output → tag compare →
+controller (<code>cpu_valid</code>, <code>hit</code>) → clock enable of
+output register. This is the hit path, as expected for a 1-cycle-hit
+Mealy design.</p>
+<p><strong>Important:</strong> The block-RAM Fmax is for a modified
+mapping with registered read addresses (a wrapper with flip-flops on all
+inputs/outputs). It must not be quoted as the Fmax for the unmodified
+asynchronous-read <code>cache_top</code>.</p>
+<h3 id="area-analysis">10.7 Area Analysis</h3>
+<ol type="1">
+<li><p><strong>Where the area goes.</strong> The <code>data_ram</code>
+dominates: 82.2% of all generic cells in the base config (8,192
+flip-flops plus write decoders and read muxes). <code>tag_ram</code> is
+14.3%. All “logic” (controller, comparator, counters) is under 2%. The
+controller FSM itself is only 31 cells and 5 flip-flops.</p></li>
+<li><p><strong>Tag overhead.</strong> 22 tag bits + 1 valid bit per 128
+data bits = 18.0% for the base config. Larger caches reduce it slightly
+(one fewer tag bit per doubling). Larger blocks reduce it dramatically
+(4.5% at 64 B) because fewer lines means fewer tags; 8 B blocks cost
+35.9%.</p></li>
+<li><p><strong>BRAM, LUTRAM, or flip-flops?</strong> Block RAM count is
+0 in every synthesis run on both FPGA targets. Block RAM requires
+synchronous (registered) reads, and our design uses asynchronous reads
+for one-cycle hits. On Xilinx, the arrays become distributed RAM
+(LUTRAM): 150 one-bit-wide <code>RAM64X1S</code> for the base config. On
+iCE40 (no LUTRAM), they become flip-flops: 9,733 FFs vs. 133 FFs on
+Xilinx for the same RTL.</p></li>
+<li><p><strong>Scaling with cache size.</strong> Generic cell and iCE40
+LUT/FF counts approximately double when the cache doubles. Xilinx grows
+more slowly because one LUT6 stores 64 bits.</p></li>
+<li><p><strong>Scaling with block size (fixed 1 KiB).</strong> Data bits
+stay at 8,192, so generic area changes modestly (32,015 → 24,527 from 8
+B to 64 B). The change is mostly <code>tag_ram</code> shrinking, while
+the top-level word mux grows (259 → 1,080 cells).</p></li>
+<li><p><strong>Design tradeoff.</strong> Registering the read address
+would enable block RAM (978 logic cells + 10 BRAMs on iCE40 vs. ~9,700
+flip-flops), but hit time would increase to 2 cycles. The design retains
+the 1-cycle hit per the project specification.</p></li>
+</ol>
+<hr />
+<h2 id="comparison-and-tradeoff-analysis">11. Comparison and Tradeoff
+Analysis</h2>
+<h3 id="cache-size-vs.-hit-ratio">11.1 Cache Size vs. Hit Ratio</h3>
+<p>Doubling the cache size reduces eviction pressure. For workloads with
+moderate working sets (mixed, loop), even a 512 B cache delivers high
+hit ratios. For the random trace, even 4 KiB provides minimal
+improvement because the 256 KiB address space vastly exceeds the cache.
+The column-major trace benefits from larger caches (more lines reduce
+index conflicts), while sequential/row-major traces are insensitive to
+cache size (their miss ratio is determined by block size, not
+capacity).</p>
+<h3 id="block-size-vs.-amat-tradeoff">11.2 Block Size vs. AMAT
+Tradeoff</h3>
+<p>Larger blocks exploit more spatial locality (more words per refill →
+more hits per miss) but increase miss penalty (more words to transfer:
+<code>miss_penalty = W × (L + 1) + 1</code>). The AMAT tradeoff depends
+on workload:</p>
+<ul>
+<li><strong>Sequential/row-major:</strong> Larger blocks always help
+because consecutive accesses are sequential. Going from 8 B (2 words,
+50% hit ratio) to 64 B (16 words, 93.75% hit ratio at full utilization)
+dramatically improves hit ratio. However, miss penalty grows from 9 to
+81 cycles.</li>
+<li><strong>Random:</strong> Block size barely matters; almost every
+access misses regardless.</li>
+<li><strong>Stride/column-major:</strong> Larger blocks are harmful—they
+transfer unused words and increase both miss penalty and conflict
+pressure due to fewer cache lines.</li>
+</ul>
+<p>The optimal block size is workload-dependent. For the baseline mix of
+workloads, 16 B represents a reasonable balance.</p>
+<h3 id="row-major-vs.-column-major-matrix-traversal">11.3 Row-Major
+vs. Column-Major Matrix Traversal</h3>
+<p>This is the most dramatic comparison in the study:</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Row-Major</th>
+<th>Column-Major</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hit ratio</td>
+<td>75.00%</td>
+<td>0.00%</td>
+</tr>
+<tr>
+<td>AMAT</td>
+<td>6.250 cycles</td>
+<td>22.000 cycles</td>
+</tr>
+<tr>
+<td>Compulsory misses</td>
+<td>1024</td>
+<td>1024</td>
+</tr>
+<tr>
+<td>Conflict misses</td>
+<td>0</td>
+<td>3072</td>
+</tr>
+</tbody>
+</table>
+<p>Both traces access the same 4096 words of the same 64×64 matrix.
+Row-major traversal accesses consecutive words that share 16-byte cache
+blocks, achieving 3 hits for every cold miss. Column-major traversal
+steps by 256 bytes (one row), causing blocks from different rows to
+compete for the same direct-mapped cache line. Every access evicts the
+previously loaded row’s block, yielding 100% misses.</p>
+<p>This comparison powerfully illustrates: (a) the importance of
+access-pattern-aware programming, and (b) the weakness of direct-mapped
+caches under stride patterns that are multiples of the cache size.</p>
+<h3 id="direct-mapped-vs.-fully-associative-shadow">11.4 Direct-Mapped
+vs. Fully Associative Shadow</h3>
+<p>The three-C classification reveals what a fully associative cache of
+the same size would achieve:</p>
+<ul>
+<li><strong>Column-major:</strong> All 3072 conflict misses would become
+hits, reducing misses from 4096 to 1024 (compulsory only). AMAT would
+improve from 22.0 to 6.25 cycles.</li>
+<li><strong>Stride:</strong> 1364 conflict misses would be eliminated,
+but 342 capacity misses and 2390 compulsory misses remain. Associativity
+alone cannot fix all misses.</li>
+<li><strong>Loop:</strong> Already at 99.22% hit ratio with direct
+mapping; associativity adds nothing because there are no conflicts.</li>
+</ul>
+<p>This analysis motivates set-associative designs as a future
+extension: even 2-way or 4-way associativity would eliminate most
+conflict misses while keeping the implementation cost much lower than
+full associativity.</p>
+<hr />
+<h2 id="limitations-and-future-work">12. Limitations and Future
+Work</h2>
+<h3 id="current-limitations">12.1 Current Limitations</h3>
+<ol type="1">
+<li><strong>Read-only baseline.</strong> Write operations are supported
+only as an optional stretch feature (write-through, no-write-allocate).
+Write-back and write-allocate policies are not implemented.</li>
+<li><strong>Synthetic workloads.</strong> All seven traces are
+algorithmically generated. Real application traces from embedded systems
+or operating system kernels would provide more realistic
+evaluation.</li>
+<li><strong>Direct-mapped only.</strong> The single-way organization
+suffers from conflict misses that associativity would eliminate.</li>
+<li><strong>Single-level hierarchy.</strong> The design models only L1
+cache; multi-level caches (L1/L2) are not explored.</li>
+<li><strong>No Vivado/Quartus timing.</strong> Fmax is available only
+for an iCE40 block-RAM variant; no vendor timing for Xilinx or Intel
+FPGAs.</li>
+<li><strong>Blocking cache.</strong> Only one request can be serviced at
+a time; non-blocking (lockup-free) caches would improve processor
+utilization.</li>
+</ol>
+<h3 id="future-extensions">12.2 Future Extensions</h3>
+<ol type="1">
+<li><strong>Set-associative cache</strong> (2-way, 4-way): Add way
+selection, LRU replacement, and compare the conflict-miss reduction
+against implementation cost.</li>
+<li><strong>Write-back / write-allocate:</strong> Implement dirty bits
+and a write-back buffer to reduce memory bus traffic.</li>
+<li><strong>Application-derived traces:</strong> Instrument real
+programs to generate memory traces and evaluate cache behaviour on
+realistic workloads.</li>
+<li><strong>Multi-level hierarchy:</strong> Add an L2 cache between L1
+and main memory.</li>
+<li><strong>Non-blocking cache:</strong> Implement miss-status holding
+registers (MSHRs) to allow hit-under-miss.</li>
+<li><strong>Replacement policies:</strong> Compare LRU, pseudo-LRU,
+FIFO, and random replacement in associative configurations.</li>
+<li><strong>Write-mixed trace analysis:</strong> Generate traces with
+both reads and writes to evaluate write policies.</li>
+</ol>
+<hr />
+<h2 id="references">13. References</h2>
+<ol type="1">
+<li><p>D. A. Patterson and J. L. Hennessy, <em>Computer Organization and
+Design: The Hardware/Software Interface</em>, 5th ed. Morgan Kaufmann,
+2014. — Chapters on memory hierarchy, cache design, and AMAT.</p></li>
+<li><p>IEEE Standard for Verilog Hardware Description Language, IEEE Std
+1364-2005 (SystemVerilog: IEEE Std 1800-2017).</p></li>
+<li><p>C. Wolf et al., “Yosys Open Synthesis Suite,” [Online].
+Available: https://yosyshq.net/yosys/ — Synthesis tool used for generic,
+Xilinx, and iCE40 targets.</p></li>
+<li><p>D. Shah et al., “nextpnr — A Portable FPGA Place and Route Tool,”
+[Online]. Available: https://github.com/YosysHQ/nextpnr — Used for iCE40
+timing analysis.</p></li>
+<li><p>S. Williams et al., “Icarus Verilog,” [Online]. Available:
+https://github.com/steveicarus/iverilog — Simulation tool.</p></li>
+<li><p>J. L. Hennessy and D. A. Patterson, <em>Computer Architecture: A
+Quantitative Approach</em>, 6th ed. Morgan Kaufmann, 2019. — Three-C
+miss model (compulsory, capacity, conflict).</p></li>
+</ol>
+<hr />
+<h2 id="appendix-a-key-verilog-module-listings">Appendix A: Key Verilog
+Module Listings</h2>
+<h3 id="a.1-cache-controller-fsm-rtlcache_controller.v">A.1 Cache
+Controller FSM (<code>rtl/cache_controller.v</code>)</h3>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode verilog"><code class="sourceCode verilog"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> cache_controller #<span class="op">(</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">parameter</span> WORDS_PER_BLOCK <span class="op">=</span> <span class="dv">4</span><span class="op">,</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">parameter</span> WRITE_SUPPORT   <span class="op">=</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">parameter</span> WSEL_W          <span class="op">=</span> <span class="dt">$clog2</span><span class="op">(</span>WORDS_PER_BLOCK<span class="op">)</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">(</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>              clk<span class="op">,</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>              rst_n<span class="op">,</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>              cpu_valid<span class="op">,</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>              cpu_we<span class="op">,</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>              hit<span class="op">,</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span> <span class="op">[</span>WSEL_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> req_word_sel<span class="op">,</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">reg</span>               cpu_ready<span class="op">,</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">reg</span>               stat_hit<span class="op">,</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">reg</span>               stat_miss<span class="op">,</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">reg</span>               mem_req<span class="op">,</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">reg</span>               mem_we<span class="op">,</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>              mem_ack<span class="op">,</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">wire</span> <span class="op">[</span>WSEL_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> refill_word<span class="op">,</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">reg</span>               data_we<span class="op">,</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">reg</span>  <span class="op">[</span>WSEL_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> data_wsel<span class="op">,</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">reg</span>               data_from_cpu<span class="op">,</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">reg</span>               tag_we<span class="op">,</span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">reg</span>               valid_we</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">localparam</span> <span class="op">[</span><span class="dv">1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> S_IDLE    <span class="op">=</span> <span class="bn">2&#39;d0</span><span class="op">,</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>                     S_REFILL  <span class="op">=</span> <span class="bn">2&#39;d1</span><span class="op">,</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>                     S_RESPOND <span class="op">=</span> <span class="bn">2&#39;d2</span><span class="op">,</span></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>                     S_WRITE   <span class="op">=</span> <span class="bn">2&#39;d3</span><span class="op">;</span></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>    <span class="dt">reg</span> <span class="op">[</span><span class="dv">1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>        state<span class="op">,</span> next_state<span class="op">;</span></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    <span class="dt">reg</span> <span class="op">[</span>WSEL_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> word_cnt<span class="op">;</span></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> refill_word <span class="op">=</span> word_cnt<span class="op">;</span></span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>    <span class="dt">wire</span> is_write  <span class="op">=</span> <span class="op">(</span>WRITE_SUPPORT <span class="op">!=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">&amp;&amp;</span> cpu_we<span class="op">;</span></span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>    <span class="dt">wire</span> last_word <span class="op">=</span> <span class="op">(</span>word_cnt <span class="op">==</span> WORDS_PER_BLOCK <span class="op">-</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">always</span> <span class="op">@(</span><span class="kw">posedge</span> clk<span class="op">)</span> <span class="kw">begin</span></span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>        <span class="kw">if</span> <span class="op">(!</span>rst_n<span class="op">)</span> <span class="kw">begin</span></span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>            state    <span class="op">&lt;=</span> S_IDLE<span class="op">;</span></span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>            word_cnt <span class="op">&lt;=</span> <span class="op">{</span>WSEL_W<span class="op">{</span><span class="bn">1&#39;b0</span><span class="op">}};</span></span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a>        <span class="kw">end</span> <span class="kw">else</span> <span class="kw">begin</span></span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>            state <span class="op">&lt;=</span> next_state<span class="op">;</span></span>
+<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a>            <span class="kw">if</span> <span class="op">(</span>state <span class="op">!=</span> S_REFILL<span class="op">)</span></span>
+<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a>                word_cnt <span class="op">&lt;=</span> <span class="op">{</span>WSEL_W<span class="op">{</span><span class="bn">1&#39;b0</span><span class="op">}};</span></span>
+<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a>            <span class="kw">else</span> <span class="kw">if</span> <span class="op">(</span>mem_ack<span class="op">)</span></span>
+<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a>                word_cnt <span class="op">&lt;=</span> word_cnt <span class="op">+</span> <span class="bn">1&#39;b1</span><span class="op">;</span></span>
+<span id="cb17-47"><a href="#cb17-47" aria-hidden="true" tabindex="-1"></a>        <span class="kw">end</span></span>
+<span id="cb17-48"><a href="#cb17-48" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span></span>
+<span id="cb17-49"><a href="#cb17-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-50"><a href="#cb17-50" aria-hidden="true" tabindex="-1"></a>    <span class="kw">always</span> <span class="op">@</span>* <span class="kw">begin</span></span>
+<span id="cb17-51"><a href="#cb17-51" aria-hidden="true" tabindex="-1"></a>        next_state    <span class="op">=</span> state<span class="op">;</span></span>
+<span id="cb17-52"><a href="#cb17-52" aria-hidden="true" tabindex="-1"></a>        cpu_ready     <span class="op">=</span> <span class="bn">1&#39;b0</span><span class="op">;</span>  stat_hit  <span class="op">=</span> <span class="bn">1&#39;b0</span><span class="op">;</span>  stat_miss <span class="op">=</span> <span class="bn">1&#39;b0</span><span class="op">;</span></span>
+<span id="cb17-53"><a href="#cb17-53" aria-hidden="true" tabindex="-1"></a>        mem_req       <span class="op">=</span> <span class="bn">1&#39;b0</span><span class="op">;</span>  mem_we    <span class="op">=</span> <span class="bn">1&#39;b0</span><span class="op">;</span></span>
+<span id="cb17-54"><a href="#cb17-54" aria-hidden="true" tabindex="-1"></a>        data_we       <span class="op">=</span> <span class="bn">1&#39;b0</span><span class="op">;</span>  data_wsel <span class="op">=</span> req_word_sel<span class="op">;</span></span>
+<span id="cb17-55"><a href="#cb17-55" aria-hidden="true" tabindex="-1"></a>        data_from_cpu <span class="op">=</span> <span class="bn">1&#39;b0</span><span class="op">;</span>  tag_we    <span class="op">=</span> <span class="bn">1&#39;b0</span><span class="op">;</span>  valid_we  <span class="op">=</span> <span class="bn">1&#39;b0</span><span class="op">;</span></span>
+<span id="cb17-56"><a href="#cb17-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-57"><a href="#cb17-57" aria-hidden="true" tabindex="-1"></a>        <span class="kw">case</span> <span class="op">(</span>state<span class="op">)</span></span>
+<span id="cb17-58"><a href="#cb17-58" aria-hidden="true" tabindex="-1"></a>            <span class="dv">S_IDLE:</span> <span class="kw">if</span> <span class="op">(</span>cpu_valid<span class="op">)</span> <span class="kw">begin</span></span>
+<span id="cb17-59"><a href="#cb17-59" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> <span class="op">(</span>hit<span class="op">)</span> <span class="kw">begin</span></span>
+<span id="cb17-60"><a href="#cb17-60" aria-hidden="true" tabindex="-1"></a>                    stat_hit <span class="op">=</span> <span class="bn">1&#39;b1</span><span class="op">;</span></span>
+<span id="cb17-61"><a href="#cb17-61" aria-hidden="true" tabindex="-1"></a>                    <span class="kw">if</span> <span class="op">(</span>is_write<span class="op">)</span> <span class="kw">begin</span></span>
+<span id="cb17-62"><a href="#cb17-62" aria-hidden="true" tabindex="-1"></a>                        data_we <span class="op">=</span> <span class="bn">1&#39;b1</span><span class="op">;</span> data_from_cpu <span class="op">=</span> <span class="bn">1&#39;b1</span><span class="op">;</span></span>
+<span id="cb17-63"><a href="#cb17-63" aria-hidden="true" tabindex="-1"></a>                        next_state <span class="op">=</span> S_WRITE<span class="op">;</span></span>
+<span id="cb17-64"><a href="#cb17-64" aria-hidden="true" tabindex="-1"></a>                    <span class="kw">end</span> <span class="kw">else</span> cpu_ready <span class="op">=</span> <span class="bn">1&#39;b1</span><span class="op">;</span></span>
+<span id="cb17-65"><a href="#cb17-65" aria-hidden="true" tabindex="-1"></a>                <span class="kw">end</span> <span class="kw">else</span> <span class="kw">begin</span></span>
+<span id="cb17-66"><a href="#cb17-66" aria-hidden="true" tabindex="-1"></a>                    stat_miss <span class="op">=</span> <span class="bn">1&#39;b1</span><span class="op">;</span></span>
+<span id="cb17-67"><a href="#cb17-67" aria-hidden="true" tabindex="-1"></a>                    next_state <span class="op">=</span> is_write <span class="op">?</span> S_WRITE <span class="op">:</span> S_REFILL<span class="op">;</span></span>
+<span id="cb17-68"><a href="#cb17-68" aria-hidden="true" tabindex="-1"></a>                <span class="kw">end</span></span>
+<span id="cb17-69"><a href="#cb17-69" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb17-70"><a href="#cb17-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-71"><a href="#cb17-71" aria-hidden="true" tabindex="-1"></a>            <span class="dv">S_REFILL:</span> <span class="kw">begin</span></span>
+<span id="cb17-72"><a href="#cb17-72" aria-hidden="true" tabindex="-1"></a>                mem_req <span class="op">=</span> <span class="bn">1&#39;b1</span><span class="op">;</span> data_wsel <span class="op">=</span> word_cnt<span class="op">;</span></span>
+<span id="cb17-73"><a href="#cb17-73" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> <span class="op">(</span>mem_ack<span class="op">)</span> <span class="kw">begin</span></span>
+<span id="cb17-74"><a href="#cb17-74" aria-hidden="true" tabindex="-1"></a>                    data_we <span class="op">=</span> <span class="bn">1&#39;b1</span><span class="op">;</span></span>
+<span id="cb17-75"><a href="#cb17-75" aria-hidden="true" tabindex="-1"></a>                    <span class="kw">if</span> <span class="op">(</span>last_word<span class="op">)</span> <span class="kw">begin</span></span>
+<span id="cb17-76"><a href="#cb17-76" aria-hidden="true" tabindex="-1"></a>                        tag_we <span class="op">=</span> <span class="bn">1&#39;b1</span><span class="op">;</span> valid_we <span class="op">=</span> <span class="bn">1&#39;b1</span><span class="op">;</span></span>
+<span id="cb17-77"><a href="#cb17-77" aria-hidden="true" tabindex="-1"></a>                        next_state <span class="op">=</span> S_RESPOND<span class="op">;</span></span>
+<span id="cb17-78"><a href="#cb17-78" aria-hidden="true" tabindex="-1"></a>                    <span class="kw">end</span></span>
+<span id="cb17-79"><a href="#cb17-79" aria-hidden="true" tabindex="-1"></a>                <span class="kw">end</span></span>
+<span id="cb17-80"><a href="#cb17-80" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb17-81"><a href="#cb17-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-82"><a href="#cb17-82" aria-hidden="true" tabindex="-1"></a>            <span class="dv">S_RESPOND:</span> <span class="kw">begin</span> cpu_ready <span class="op">=</span> <span class="bn">1&#39;b1</span><span class="op">;</span> next_state <span class="op">=</span> S_IDLE<span class="op">;</span> <span class="kw">end</span></span>
+<span id="cb17-83"><a href="#cb17-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-84"><a href="#cb17-84" aria-hidden="true" tabindex="-1"></a>            <span class="dv">S_WRITE:</span> <span class="kw">begin</span></span>
+<span id="cb17-85"><a href="#cb17-85" aria-hidden="true" tabindex="-1"></a>                mem_req <span class="op">=</span> <span class="bn">1&#39;b1</span><span class="op">;</span> mem_we <span class="op">=</span> <span class="bn">1&#39;b1</span><span class="op">;</span></span>
+<span id="cb17-86"><a href="#cb17-86" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> <span class="op">(</span>mem_ack<span class="op">)</span> <span class="kw">begin</span> cpu_ready <span class="op">=</span> <span class="bn">1&#39;b1</span><span class="op">;</span> next_state <span class="op">=</span> S_IDLE<span class="op">;</span> <span class="kw">end</span></span>
+<span id="cb17-87"><a href="#cb17-87" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb17-88"><a href="#cb17-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-89"><a href="#cb17-89" aria-hidden="true" tabindex="-1"></a>            <span class="kw">default</span><span class="op">:</span> next_state <span class="op">=</span> S_IDLE<span class="op">;</span></span>
+<span id="cb17-90"><a href="#cb17-90" aria-hidden="true" tabindex="-1"></a>        <span class="kw">endcase</span></span>
+<span id="cb17-91"><a href="#cb17-91" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span></span>
+<span id="cb17-92"><a href="#cb17-92" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div>
+<h3 id="a.2-cache-top-rtlcache_top.v">A.2 Cache Top
+(<code>rtl/cache_top.v</code>)</h3>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode verilog"><code class="sourceCode verilog"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> cache_top #<span class="op">(</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">parameter</span> ADDR_W        <span class="op">=</span> <span class="dv">32</span><span class="op">,</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">parameter</span> CACHE_BYTES   <span class="op">=</span> <span class="dv">1024</span><span class="op">,</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">parameter</span> BLOCK_BYTES   <span class="op">=</span> <span class="dv">16</span><span class="op">,</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">parameter</span> WRITE_SUPPORT <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">(</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>              clk<span class="op">,</span> rst_n<span class="op">,</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>              cpu_valid<span class="op">,</span> cpu_we<span class="op">,</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span> <span class="op">[</span>ADDR_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> cpu_addr<span class="op">,</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span> <span class="op">[</span><span class="dv">31</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>       cpu_wdata<span class="op">,</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">wire</span> <span class="op">[</span><span class="dv">31</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>       cpu_rdata<span class="op">,</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">wire</span>              cpu_ready<span class="op">,</span> stat_hit<span class="op">,</span> stat_miss<span class="op">,</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">reg</span>  <span class="op">[</span><span class="dv">31</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>       hit_count<span class="op">,</span> miss_count<span class="op">,</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">wire</span>              mem_req<span class="op">,</span> mem_we<span class="op">,</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">wire</span> <span class="op">[</span>ADDR_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> mem_addr<span class="op">,</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">wire</span> <span class="op">[</span><span class="dv">31</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>       mem_wdata<span class="op">,</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span> <span class="op">[</span><span class="dv">31</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>       mem_rdata<span class="op">,</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>              mem_ack</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">localparam</span> NUM_LINES       <span class="op">=</span> CACHE_BYTES <span class="op">/</span> BLOCK_BYTES<span class="op">;</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">localparam</span> OFF_W           <span class="op">=</span> <span class="dt">$clog2</span><span class="op">(</span>BLOCK_BYTES<span class="op">);</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">localparam</span> INDEX_W         <span class="op">=</span> <span class="dt">$clog2</span><span class="op">(</span>NUM_LINES<span class="op">);</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">localparam</span> TAG_W           <span class="op">=</span> ADDR_W <span class="op">-</span> INDEX_W <span class="op">-</span> OFF_W<span class="op">;</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">localparam</span> WORDS_PER_BLOCK <span class="op">=</span> BLOCK_BYTES <span class="op">/</span> <span class="dv">4</span><span class="op">;</span></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">localparam</span> WSEL_W          <span class="op">=</span> <span class="dt">$clog2</span><span class="op">(</span>WORDS_PER_BLOCK<span class="op">);</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">localparam</span> BLOCK_BITS      <span class="op">=</span> BLOCK_BYTES * <span class="dv">8</span><span class="op">;</span></span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">wire</span> <span class="op">[</span>TAG_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>   tag<span class="op">;</span></span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">wire</span> <span class="op">[</span>INDEX_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> index<span class="op">;</span></span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>    <span class="dt">wire</span> <span class="op">[</span>OFF_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>   offset<span class="op">;</span></span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>    <span class="dt">wire</span> <span class="op">[</span>WSEL_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>  word_sel<span class="op">;</span></span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>    addr_decoder #<span class="op">(</span>.ADDR_W<span class="op">(</span>ADDR_W<span class="op">),</span> .CACHE_BYTES<span class="op">(</span>CACHE_BYTES<span class="op">),</span></span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>        .BLOCK_BYTES<span class="op">(</span>BLOCK_BYTES<span class="op">))</span> u_decoder <span class="op">(</span></span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>        .addr<span class="op">(</span>cpu_addr<span class="op">),</span> .tag<span class="op">(</span>tag<span class="op">),</span> .index<span class="op">(</span>index<span class="op">),</span></span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>        .offset<span class="op">(</span>offset<span class="op">),</span> .word_sel<span class="op">(</span>word_sel<span class="op">));</span></span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>    <span class="dt">wire</span> data_we<span class="op">,</span> tag_we<span class="op">,</span> valid_we<span class="op">,</span> data_from_cpu<span class="op">;</span></span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a>    <span class="dt">wire</span> <span class="op">[</span>WSEL_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> data_wsel<span class="op">,</span> refill_word<span class="op">;</span></span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a>    <span class="dt">wire</span> <span class="op">[</span>TAG_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>      stored_tag<span class="op">;</span></span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a>    <span class="dt">wire</span>                  stored_valid<span class="op">;</span></span>
+<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a>    <span class="dt">wire</span> <span class="op">[</span>BLOCK_BITS<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> rd_block<span class="op">;</span></span>
+<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a>    <span class="dt">wire</span> <span class="op">[</span><span class="dv">31</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>           w_word <span class="op">=</span> data_from_cpu <span class="op">?</span> cpu_wdata <span class="op">:</span> mem_rdata<span class="op">;</span></span>
+<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a>    tag_ram       #<span class="op">(</span>.INDEX_W<span class="op">(</span>INDEX_W<span class="op">),</span> .TAG_W<span class="op">(</span>TAG_W<span class="op">))</span> u_tag_ram <span class="op">(</span>...<span class="op">);</span></span>
+<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a>    valid_ram     #<span class="op">(</span>.INDEX_W<span class="op">(</span>INDEX_W<span class="op">))</span> u_valid_ram <span class="op">(</span>...<span class="op">);</span></span>
+<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a>    data_ram      #<span class="op">(</span>.INDEX_W<span class="op">(</span>INDEX_W<span class="op">),</span> .BLOCK_BYTES<span class="op">(</span>BLOCK_BYTES<span class="op">))</span> u_data_ram <span class="op">(</span>...<span class="op">);</span></span>
+<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a>    tag_comparator #<span class="op">(</span>.TAG_W<span class="op">(</span>TAG_W<span class="op">))</span> u_cmp <span class="op">(</span>...<span class="op">);</span></span>
+<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a>    cache_controller #<span class="op">(</span>.WORDS_PER_BLOCK<span class="op">(</span>WORDS_PER_BLOCK<span class="op">),</span></span>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>        .WRITE_SUPPORT<span class="op">(</span>WRITE_SUPPORT<span class="op">))</span> u_ctrl <span class="op">(</span>...<span class="op">);</span></span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> cpu_rdata <span class="op">=</span> rd_block<span class="op">[</span>word_sel*<span class="dv">32</span> <span class="op">+:</span> <span class="dv">32</span><span class="op">];</span></span>
+<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> mem_addr  <span class="op">=</span> mem_we <span class="op">?</span> <span class="op">{</span>cpu_addr<span class="op">[</span>ADDR_W<span class="dv">-1</span><span class="op">:</span><span class="dv">2</span><span class="op">],</span> <span class="bn">2&#39;b00</span><span class="op">}</span></span>
+<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a>                              <span class="op">:</span> <span class="op">{</span>cpu_addr<span class="op">[</span>ADDR_W<span class="dv">-1</span><span class="op">:</span>OFF_W<span class="op">],</span> refill_word<span class="op">,</span> <span class="bn">2&#39;b00</span><span class="op">};</span></span>
+<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> mem_wdata <span class="op">=</span> cpu_wdata<span class="op">;</span></span>
+<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a>    <span class="kw">always</span> <span class="op">@(</span><span class="kw">posedge</span> clk<span class="op">)</span> <span class="kw">begin</span></span>
+<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a>        <span class="kw">if</span> <span class="op">(!</span>rst_n<span class="op">)</span> <span class="kw">begin</span> hit_count <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">;</span> miss_count <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">;</span> <span class="kw">end</span></span>
+<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a>        <span class="kw">else</span> <span class="kw">begin</span></span>
+<span id="cb18-60"><a href="#cb18-60" aria-hidden="true" tabindex="-1"></a>            <span class="kw">if</span> <span class="op">(</span>stat_hit<span class="op">)</span>  hit_count  <span class="op">&lt;=</span> hit_count  <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a>            <span class="kw">if</span> <span class="op">(</span>stat_miss<span class="op">)</span> miss_count <span class="op">&lt;=</span> miss_count <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a>        <span class="kw">end</span></span>
+<span id="cb18-63"><a href="#cb18-63" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span></span>
+<span id="cb18-64"><a href="#cb18-64" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div>
+<h3 id="a.3-address-decoder-rtladdr_decoder.v">A.3 Address Decoder
+(<code>rtl/addr_decoder.v</code>)</h3>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode verilog"><code class="sourceCode verilog"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> addr_decoder #<span class="op">(</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">parameter</span> ADDR_W <span class="op">=</span> <span class="dv">32</span><span class="op">,</span> CACHE_BYTES <span class="op">=</span> <span class="dv">1024</span><span class="op">,</span> BLOCK_BYTES <span class="op">=</span> <span class="dv">16</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">(</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span> <span class="op">[</span>ADDR_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>                          addr<span class="op">,</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">wire</span> <span class="op">[</span>ADDR_W<span class="op">-</span><span class="dt">$clog2</span><span class="op">(</span>CACHE_BYTES<span class="op">)-</span><span class="dv">1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>      tag<span class="op">,</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">wire</span> <span class="op">[</span><span class="dt">$clog2</span><span class="op">(</span>CACHE_BYTES<span class="op">/</span>BLOCK_BYTES<span class="op">)-</span><span class="dv">1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> index<span class="op">,</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">wire</span> <span class="op">[</span><span class="dt">$clog2</span><span class="op">(</span>BLOCK_BYTES<span class="op">)-</span><span class="dv">1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>             offset<span class="op">,</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">wire</span> <span class="op">[</span><span class="dt">$clog2</span><span class="op">(</span>BLOCK_BYTES<span class="op">)-</span><span class="dv">3</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>             word_sel</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">localparam</span> NUM_LINES <span class="op">=</span> CACHE_BYTES <span class="op">/</span> BLOCK_BYTES<span class="op">;</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">localparam</span> OFF_W     <span class="op">=</span> <span class="dt">$clog2</span><span class="op">(</span>BLOCK_BYTES<span class="op">);</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">localparam</span> INDEX_W   <span class="op">=</span> <span class="dt">$clog2</span><span class="op">(</span>NUM_LINES<span class="op">);</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">localparam</span> TAG_W     <span class="op">=</span> ADDR_W <span class="op">-</span> INDEX_W <span class="op">-</span> OFF_W<span class="op">;</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> offset   <span class="op">=</span> addr<span class="op">[</span>OFF_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> index    <span class="op">=</span> addr<span class="op">[</span>OFF_W<span class="op">+</span>INDEX_W<span class="dv">-1</span><span class="op">:</span>OFF_W<span class="op">];</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> tag      <span class="op">=</span> addr<span class="op">[</span>ADDR_W<span class="dv">-1</span><span class="op">:</span>OFF_W<span class="op">+</span>INDEX_W<span class="op">];</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> word_sel <span class="op">=</span> addr<span class="op">[</span>OFF_W<span class="dv">-1</span><span class="op">:</span><span class="dv">2</span><span class="op">];</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div>
+<h3 id="a.4-tag-comparator-rtltag_comparator.v">A.4 Tag Comparator
+(<code>rtl/tag_comparator.v</code>)</h3>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode verilog"><code class="sourceCode verilog"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> tag_comparator #<span class="op">(</span><span class="dt">parameter</span> TAG_W <span class="op">=</span> <span class="dv">22</span><span class="op">)</span> <span class="op">(</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span> <span class="op">[</span>TAG_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> tag_a<span class="op">,</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span> <span class="op">[</span>TAG_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> tag_b<span class="op">,</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>             valid<span class="op">,</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">wire</span>             hit</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> hit <span class="op">=</span> valid <span class="op">&amp;</span> <span class="op">(</span>tag_a <span class="op">==</span> tag_b<span class="op">);</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div>
+<h3 id="a.5-data-ram-rtldata_ram.v">A.5 Data RAM
+(<code>rtl/data_ram.v</code>)</h3>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode verilog"><code class="sourceCode verilog"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> data_ram #<span class="op">(</span><span class="dt">parameter</span> INDEX_W <span class="op">=</span> <span class="dv">6</span><span class="op">,</span> BLOCK_BYTES <span class="op">=</span> <span class="dv">16</span><span class="op">)</span> <span class="op">(</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>                           clk<span class="op">,</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span> <span class="op">[</span>INDEX_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>             index<span class="op">,</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">wire</span> <span class="op">[</span>BLOCK_BYTES*<span class="dv">8-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>       rd_block<span class="op">,</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>                           we<span class="op">,</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span> <span class="op">[</span>INDEX_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>             w_index<span class="op">,</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span> <span class="op">[</span><span class="dt">$clog2</span><span class="op">(</span>BLOCK_BYTES<span class="op">)-</span><span class="dv">3</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> w_word_sel<span class="op">,</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span> <span class="op">[</span><span class="dv">31</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>                    w_word</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">localparam</span> DEPTH      <span class="op">=</span> <span class="dv">1</span> <span class="op">&lt;&lt;</span> INDEX_W<span class="op">;</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">localparam</span> BLOCK_BITS <span class="op">=</span> BLOCK_BYTES * <span class="dv">8</span><span class="op">;</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">reg</span> <span class="op">[</span>BLOCK_BITS<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> mem <span class="op">[</span><span class="dv">0</span><span class="op">:</span>DEPTH<span class="dv">-1</span><span class="op">];</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> rd_block <span class="op">=</span> mem<span class="op">[</span>index<span class="op">];</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">always</span> <span class="op">@(</span><span class="kw">posedge</span> clk<span class="op">)</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>        <span class="kw">if</span> <span class="op">(</span>we<span class="op">)</span> mem<span class="op">[</span>w_index<span class="op">][</span>w_word_sel*<span class="dv">32</span> <span class="op">+:</span> <span class="dv">32</span><span class="op">]</span> <span class="op">&lt;=</span> w_word<span class="op">;</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div>
+<h3 id="a.6-tag-ram-rtltag_ram.v">A.6 Tag RAM
+(<code>rtl/tag_ram.v</code>)</h3>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode verilog"><code class="sourceCode verilog"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> tag_ram #<span class="op">(</span><span class="dt">parameter</span> INDEX_W <span class="op">=</span> <span class="dv">6</span><span class="op">,</span> TAG_W <span class="op">=</span> <span class="dv">22</span><span class="op">)</span> <span class="op">(</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>               clk<span class="op">,</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span> <span class="op">[</span>INDEX_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> index<span class="op">,</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">wire</span> <span class="op">[</span>TAG_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>   tag_out<span class="op">,</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>               we<span class="op">,</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span> <span class="op">[</span>INDEX_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> w_index<span class="op">,</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span> <span class="op">[</span>TAG_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span>   w_tag</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">localparam</span> DEPTH <span class="op">=</span> <span class="dv">1</span> <span class="op">&lt;&lt;</span> INDEX_W<span class="op">;</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">reg</span> <span class="op">[</span>TAG_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> mem <span class="op">[</span><span class="dv">0</span><span class="op">:</span>DEPTH<span class="dv">-1</span><span class="op">];</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> tag_out <span class="op">=</span> mem<span class="op">[</span>index<span class="op">];</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">always</span> <span class="op">@(</span><span class="kw">posedge</span> clk<span class="op">)</span> <span class="kw">if</span> <span class="op">(</span>we<span class="op">)</span> mem<span class="op">[</span>w_index<span class="op">]</span> <span class="op">&lt;=</span> w_tag<span class="op">;</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div>
+<h3 id="a.7-valid-ram-rtlvalid_ram.v">A.7 Valid RAM
+(<code>rtl/valid_ram.v</code>)</h3>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode verilog"><code class="sourceCode verilog"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> valid_ram #<span class="op">(</span><span class="dt">parameter</span> INDEX_W <span class="op">=</span> <span class="dv">6</span><span class="op">)</span> <span class="op">(</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>               clk<span class="op">,</span> rst_n<span class="op">,</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span> <span class="op">[</span>INDEX_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> index<span class="op">,</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">wire</span>               valid_out<span class="op">,</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>               we<span class="op">,</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span> <span class="op">[</span>INDEX_W<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> w_index<span class="op">,</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>               w_valid</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">localparam</span> DEPTH <span class="op">=</span> <span class="dv">1</span> <span class="op">&lt;&lt;</span> INDEX_W<span class="op">;</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">reg</span> <span class="op">[</span>DEPTH<span class="dv">-1</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> valid_bits<span class="op">;</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> valid_out <span class="op">=</span> valid_bits<span class="op">[</span>index<span class="op">];</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">always</span> <span class="op">@(</span><span class="kw">posedge</span> clk<span class="op">)</span> <span class="kw">begin</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">if</span> <span class="op">(!</span>rst_n<span class="op">)</span>       valid_bits <span class="op">&lt;=</span> <span class="op">{</span>DEPTH<span class="op">{</span><span class="bn">1&#39;b0</span><span class="op">}};</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>        <span class="kw">else</span> <span class="kw">if</span> <span class="op">(</span>we<span class="op">)</span>      valid_bits<span class="op">[</span>w_index<span class="op">]</span> <span class="op">&lt;=</span> w_valid<span class="op">;</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div>
+<h3 id="a.8-main-memory-rtlmain_memory.v">A.8 Main Memory
+(<code>rtl/main_memory.v</code>)</h3>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode verilog"><code class="sourceCode verilog"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> main_memory #<span class="op">(</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">parameter</span> MEM_WORDS <span class="op">=</span> <span class="dv">65536</span><span class="op">,</span> MEM_LATENCY <span class="op">=</span> <span class="dv">4</span><span class="op">,</span> STRICT_RDATA <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="op">)</span> <span class="op">(</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>        clk<span class="op">,</span> rst_n<span class="op">,</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span>        mem_req<span class="op">,</span> mem_we<span class="op">,</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">input</span>  <span class="dt">wire</span> <span class="op">[</span><span class="dv">31</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> mem_addr<span class="op">,</span> mem_wdata<span class="op">,</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">wire</span> <span class="op">[</span><span class="dv">31</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> mem_rdata<span class="op">,</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">reg</span>         mem_ack<span class="op">,</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">output</span> <span class="dt">reg</span>  <span class="op">[</span><span class="dv">31</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> mem_read_count<span class="op">,</span> mem_write_count</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">localparam</span> <span class="dt">integer</span> LAT <span class="op">=</span> <span class="op">(</span>MEM_LATENCY <span class="op">&lt;</span> <span class="dv">1</span><span class="op">)</span> <span class="op">?</span> <span class="dv">1</span> <span class="op">:</span> MEM_LATENCY<span class="op">;</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">reg</span> <span class="op">[</span><span class="dv">31</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> mem <span class="op">[</span><span class="dv">0</span><span class="op">:</span>MEM_WORDS<span class="dv">-1</span><span class="op">];</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">reg</span> <span class="op">[</span><span class="dv">31</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> rdata_q<span class="op">,</span> wait_cnt<span class="op">;</span></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">wire</span> <span class="op">[</span><span class="dv">31</span><span class="op">:</span><span class="dv">0</span><span class="op">]</span> word_idx <span class="op">=</span> <span class="op">(</span>mem_addr <span class="op">&gt;&gt;</span> <span class="dv">2</span><span class="op">)</span> <span class="op">%</span> MEM_WORDS<span class="op">;</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">integer</span> i<span class="op">;</span></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">initial</span> <span class="kw">begin</span></span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>        <span class="kw">for</span> <span class="op">(</span>i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> MEM_WORDS<span class="op">;</span> i <span class="op">=</span> i <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> mem<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> i * <span class="bn">32&#39;h9E3779B1</span><span class="op">;</span></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>        mem_ack <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> mem_read_count <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> mem_write_count <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> wait_cnt <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">always</span> <span class="op">@(</span><span class="kw">posedge</span> clk<span class="op">)</span> <span class="kw">begin</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>        mem_ack <span class="op">&lt;=</span> <span class="bn">1&#39;b0</span><span class="op">;</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>        <span class="kw">if</span> <span class="op">(!</span>rst_n<span class="op">)</span> <span class="kw">begin</span></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>            wait_cnt <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">;</span> mem_read_count <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">;</span> mem_write_count <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>        <span class="kw">end</span> <span class="kw">else</span> <span class="kw">if</span> <span class="op">(</span>mem_req <span class="op">&amp;&amp;</span> <span class="op">!</span>mem_ack<span class="op">)</span> <span class="kw">begin</span></span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>            <span class="kw">if</span> <span class="op">(</span>wait_cnt <span class="op">==</span> LAT <span class="op">-</span> <span class="dv">1</span><span class="op">)</span> <span class="kw">begin</span></span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>                wait_cnt <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">;</span> mem_ack <span class="op">&lt;=</span> <span class="bn">1&#39;b1</span><span class="op">;</span></span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> <span class="op">(</span>mem_we<span class="op">)</span> <span class="kw">begin</span></span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>                    mem<span class="op">[</span>word_idx<span class="op">]</span> <span class="op">&lt;=</span> mem_wdata<span class="op">;</span></span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>                    mem_write_count <span class="op">&lt;=</span> mem_write_count <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>                <span class="kw">end</span> <span class="kw">else</span> <span class="kw">begin</span></span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a>                    rdata_q <span class="op">&lt;=</span> mem<span class="op">[</span>word_idx<span class="op">];</span></span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>                    mem_read_count <span class="op">&lt;=</span> mem_read_count <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>                <span class="kw">end</span></span>
+<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span> <span class="kw">else</span> wait_cnt <span class="op">&lt;=</span> wait_cnt <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>        <span class="kw">end</span> <span class="kw">else</span> wait_cnt <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span></span>
+<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-40"><a href="#cb24-40" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> mem_rdata <span class="op">=</span> <span class="op">(</span>STRICT_RDATA <span class="op">!=</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> <span class="op">!</span>mem_ack<span class="op">)</span> <span class="op">?</span> <span class="bn">32&#39;hxxxxxxxx</span> <span class="op">:</span> rdata_q<span class="op">;</span></span>
+<span id="cb24-41"><a href="#cb24-41" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code></pre></div>
+<hr />
+<h2 id="appendix-b-reproduction-commands">Appendix B: Reproduction
+Commands</h2>
+<h3 id="b.1-trace-generation">B.1 Trace Generation</h3>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate all 7 traces (fixed seed for reproducibility)</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> traces/gen_traces.py <span class="at">--count</span> 4096 <span class="at">--seed</span> 20261116</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Or via Makefile:</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> traces</span></code></pre></div>
+<h3 id="b.2-reference-model-analysis">B.2 Reference-Model Analysis</h3>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run Python reference model on all traces, generate summary and plots</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> analysis</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Output:</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   analysis/results/summary.csv</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   analysis/results/summary.md</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   analysis/results/hit_ratio_by_trace.png</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   analysis/results/hit_ratio_vs_cache_size.png</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   analysis/results/hit_ratio_vs_block_size.png</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   analysis/results/amat_vs_block_size.png</span></span></code></pre></div>
+<h3 id="b.3-rtl-verification">B.3 RTL Verification</h3>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run all directed tests</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> sim</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Run trace-driven RTL simulation + golden comparison for one trace</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> trace T=seq</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Run complete test suite (all directed tests + all traces)</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> test</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="co"># RTL-validated analysis for a specific trace</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> analysis-rtl T=seq</span></code></pre></div>
+<h3 id="b.4-synthesis">B.4 Synthesis</h3>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Base config, generic cells</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> <span class="at">-C</span> synth</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Specific target</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> <span class="at">-C</span> synth TARGET=xilinx</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> <span class="at">-C</span> synth TARGET=ice40</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Parameter override</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> <span class="at">-C</span> synth CACHE_BYTES=4096 BLOCK_BYTES=64 TARGET=ice40</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Full sweep (all configurations, ~1 minute)</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> <span class="at">-C</span> synth sweep</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Fmax timing (nextpnr-ice40)</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> <span class="at">-C</span> synth fmax</span></code></pre></div>
+<h3 id="b.5-waveform-viewing">B.5 Waveform Viewing</h3>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate VCD and open GTKWave</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> wave</span></code></pre></div>
+<h3 id="b.6-tool-requirements">B.6 Tool Requirements</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Minimum Version</th>
+<th>Installation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Icarus Verilog</td>
+<td>11.0+</td>
+<td><code>brew install icarus-verilog</code> or
+<code>apt install iverilog</code></td>
+</tr>
+<tr>
+<td>GTKWave</td>
+<td>3.3+</td>
+<td><code>brew install gtkwave</code> or
+<code>apt install gtkwave</code></td>
+</tr>
+<tr>
+<td>Python 3</td>
+<td>3.8+</td>
+<td>With <code>matplotlib</code> for plots</td>
+</tr>
+<tr>
+<td>Yosys</td>
+<td>0.9+</td>
+<td><code>brew install yosys</code> or build from source</td>
+</tr>
+<tr>
+<td>nextpnr-ice40</td>
+<td>0.1+</td>
+<td>Optional, for Fmax timing</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>End of Report</em></p>
+</body>
+</html>
