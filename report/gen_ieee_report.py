@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
 """
 Generate a publication-grade IEEE Conference 2-column format Phase I Project Report
-strictly covering:
-1. Abstract
-2. Literature Review
-3. Proposed Solution (Architecture, Storage Datapath, FSM Controller, Memory Handshake)
-4. Individual Contributions
-5. Prototype Progress & Validation
-6. References
+with embedded architectural diagrams, waveform timing charts, and performance plots,
+strictly adhering to IEEE conference publishing guidelines.
 """
 import subprocess
 import os
@@ -21,12 +16,12 @@ def generate_html(output_path):
 <style>
   @page {
     size: letter;
-    margin: 0.75in 0.65in 0.8in 0.65in;
+    margin: 0.65in 0.6in 0.7in 0.6in;
   }
   body {
     font-family: 'Times New Roman', Times, serif;
-    font-size: 10pt;
-    line-height: 1.2;
+    font-size: 9.5pt;
+    line-height: 1.18;
     color: #000000;
     margin: 0;
     padding: 0;
@@ -35,82 +30,82 @@ def generate_html(output_path):
   }
   .title-area {
     text-align: center;
-    margin-bottom: 18pt;
+    margin-bottom: 14pt;
   }
   h1.paper-title {
-    font-size: 19pt;
+    font-size: 18pt;
     font-weight: bold;
-    margin: 0 0 8pt 0;
+    margin: 0 0 6pt 0;
     line-height: 1.15;
   }
   .subtitle {
-    font-size: 12pt;
+    font-size: 11pt;
     font-weight: bold;
     color: #1e3a8a;
-    margin-bottom: 14pt;
+    margin-bottom: 12pt;
     letter-spacing: 0.5pt;
   }
   .authors-table {
     width: 100%;
-    margin: 0 auto 16pt auto;
+    margin: 0 auto 12pt auto;
     border-collapse: collapse;
   }
   .authors-table td {
     text-align: center;
     vertical-align: top;
-    font-size: 9pt;
+    font-size: 8.5pt;
     line-height: 1.25;
-    padding: 0 6pt;
+    padding: 0 4pt;
   }
   .author-name {
-    font-size: 10.5pt;
+    font-size: 10pt;
     font-weight: bold;
     display: block;
-    margin-bottom: 2pt;
+    margin-bottom: 1pt;
   }
   .author-role {
-    font-size: 8.5pt;
+    font-size: 8pt;
     color: #333333;
     font-style: italic;
     display: block;
-    margin-bottom: 2pt;
+    margin-bottom: 1pt;
   }
   .author-affil {
-    font-size: 8pt;
+    font-size: 7.5pt;
     color: #444444;
   }
   .author-email {
     font-family: 'Courier New', monospace;
-    font-size: 7.5pt;
+    font-size: 7pt;
     color: #222222;
   }
 
   .content-columns {
     column-count: 2;
-    column-gap: 0.28in;
+    column-gap: 0.25in;
     column-rule: 0.5pt solid #e0e0e0;
   }
 
   .abstract-box {
-    margin-bottom: 14pt;
-    padding-bottom: 8pt;
+    margin-bottom: 10pt;
+    padding-bottom: 6pt;
     border-bottom: 0.5pt solid #cccccc;
   }
   .abstract-title {
     font-weight: bold;
     font-style: italic;
-    font-size: 9pt;
+    font-size: 8.5pt;
   }
   .abstract-text {
-    font-size: 9pt;
+    font-size: 8.5pt;
     font-weight: bold;
-    line-height: 1.25;
+    line-height: 1.2;
     text-align: justify;
   }
   .index-terms {
-    font-size: 8.5pt;
+    font-size: 8pt;
     font-style: italic;
-    margin-top: 5pt;
+    margin-top: 4pt;
   }
   .index-terms-title {
     font-weight: bold;
@@ -118,55 +113,78 @@ def generate_html(output_path):
   }
 
   h2.ieee-section {
-    font-size: 10pt;
+    font-size: 9.5pt;
     font-weight: bold;
     text-transform: uppercase;
     text-align: center;
-    margin: 14pt 0 6pt 0;
+    margin: 11pt 0 5pt 0;
     letter-spacing: 0.5pt;
   }
   h3.ieee-subsection {
-    font-size: 10pt;
+    font-size: 9pt;
     font-weight: bold;
     font-style: italic;
-    margin: 10pt 0 4pt 0;
+    margin: 8pt 0 3pt 0;
   }
   p {
-    margin: 0 0 6pt 0;
-    text-indent: 14pt;
+    margin: 0 0 5pt 0;
+    text-indent: 12pt;
   }
   p.no-indent {
     text-indent: 0;
   }
 
-  .table-box {
-    margin: 10pt 0;
+  .figure-box {
+    text-align: center;
+    margin: 8pt 0;
     page-break-inside: avoid;
-    font-size: 8pt;
+  }
+  .figure-box img, .figure-box svg {
+    width: 100%;
+    height: auto;
+    border: 0.5pt solid #cbd5e1;
+    border-radius: 3px;
+    background: #ffffff;
+  }
+  .figure-caption {
+    font-size: 7.5pt;
+    margin-top: 3pt;
+    text-align: justify;
+    line-height: 1.15;
+    font-family: 'Times New Roman', serif;
+  }
+  .figure-caption b {
+    font-weight: bold;
+  }
+
+  .table-box {
+    margin: 8pt 0;
+    page-break-inside: avoid;
+    font-size: 7.5pt;
     text-align: center;
   }
   .table-title {
-    font-size: 8.5pt;
+    font-size: 8pt;
     font-weight: bold;
     text-transform: uppercase;
-    margin-bottom: 4pt;
+    margin-bottom: 3pt;
     text-align: center;
   }
   table.ieee-table {
     width: 100%;
     border-collapse: collapse;
     margin: 0 auto;
-    font-size: 8pt;
+    font-size: 7.5pt;
   }
   table.ieee-table th {
     border-top: 1pt solid #000000;
     border-bottom: 0.5pt solid #000000;
-    padding: 3pt 2pt;
+    padding: 2.5pt 2pt;
     text-align: left;
     font-weight: bold;
   }
   table.ieee-table td {
-    padding: 2.5pt 2pt;
+    padding: 2pt 2pt;
     border-bottom: 0.25pt solid #dddddd;
     text-align: left;
   }
@@ -176,9 +194,9 @@ def generate_html(output_path):
 
   .equation {
     text-align: center;
-    margin: 6pt 0;
+    margin: 5pt 0;
     font-style: italic;
-    font-size: 9.5pt;
+    font-size: 9pt;
   }
   .equation .eq-num {
     float: right;
@@ -186,20 +204,20 @@ def generate_html(output_path):
   }
 
   ul, ol {
-    margin: 4pt 0 6pt 16pt;
+    margin: 3pt 0 5pt 14pt;
     padding: 0;
   }
   li {
-    margin-bottom: 2pt;
-    font-size: 9pt;
+    margin-bottom: 1.5pt;
+    font-size: 8.5pt;
   }
 
   .reference-item {
-    font-size: 8pt;
+    font-size: 7.5pt;
     line-height: 1.15;
-    margin-bottom: 4pt;
-    padding-left: 18pt;
-    text-indent: -18pt;
+    margin-bottom: 3pt;
+    padding-left: 16pt;
+    text-indent: -16pt;
     text-align: justify;
   }
 </style>
@@ -232,13 +250,13 @@ def generate_html(output_path):
       </td>
     </tr>
     <tr>
-      <td colspan="1" style="padding-top: 8pt;">
+      <td colspan="1" style="padding-top: 6pt;">
         <span class="author-name">Shreya Suman</span>
         <span class="author-role">M4: Verification Engineer</span>
         <span class="author-affil">Dept. of Computer Science</span>
         <span class="author-email">shreya.212suman@gmail.com</span>
       </td>
-      <td colspan="2" style="padding-top: 8pt;">
+      <td colspan="2" style="padding-top: 6pt;">
         <span class="author-name">Ranvendra Pratap Singh</span>
         <span class="author-role">M5: Workload & Performance Analyst</span>
         <span class="author-affil">Dept. of Computer Science, Rishihood University, Sonipat, India</span>
@@ -251,7 +269,7 @@ def generate_html(output_path):
 <div class="content-columns">
 
   <div class="abstract-box">
-    <span class="abstract-title">Abstract</span>—<span class="abstract-text">This Phase I report presents the architectural design, Verilog RTL implementation, and initial verification of a synthesizable direct-mapped cache controller. Targeting the memory latency wall in digital processor systems, the proposed solution implements a 1 KiB cache with 16-byte blocks, 64 lines, and 32-bit word-aligned addressing. The design partitions the memory hierarchy into modular building blocks: an address decoder, a 64×22-bit Tag RAM, a 64×1-bit Valid RAM with single-cycle synchronous clear, a 64×128-bit Data RAM with word-granular write enables, a combinational Tag Comparator, and a 4-state Mealy/Moore Controller FSM. The controller guarantees a single-cycle read hit latency and coordinates a 4-word refill handshake with a behavioral main memory model, incurring a deterministic 22-cycle miss latency. Prototype functionality is verified through a 10-scenario directed testbench with 146 runtime assertions alongside an access-by-access trace co-simulation against a bit-accurate Python golden reference model. Deliberate fault-injection mutations confirm testbench rigor. All five team members have authored distinct modules and verified deliverables as detailed in this submission.</span>
+    <span class="abstract-title">Abstract</span>—<span class="abstract-text">This Phase I report presents the microarchitectural design, synthesizable Verilog RTL implementation, and initial hardware verification of a direct-mapped cache controller. Targeting the memory latency wall in digital processor systems, the proposed solution implements a 1 KiB cache with 16-byte blocks, 64 lines, and 32-bit word-aligned addressing. The design partitions the memory hierarchy into modular building blocks: an address decoder, a 64×22-bit Tag RAM, a 64×1-bit Valid RAM with single-cycle synchronous clear, a 64×128-bit Data RAM with word-granular write enables, a combinational Tag Comparator, and a 4-state Mealy/Moore Controller FSM. The controller guarantees a single-cycle read hit latency and coordinates a 4-word refill handshake with a behavioral main memory model, incurring a deterministic 22-cycle miss latency. Prototype functionality is verified through a 10-scenario directed testbench with 146 runtime assertions alongside an access-by-access trace co-simulation against a bit-accurate Python golden reference model. Deliberate fault-injection mutations confirm testbench rigor. All five team members have authored distinct modules and verified deliverables as detailed in this submission.</span>
     <div class="index-terms"><span class="index-terms-title">Index Terms</span>—Direct-mapped cache, Finite State Machine (FSM), Hardware verification, Cache controller, Computer architecture, Verilog HDL, Phase I.</div>
   </div>
 
@@ -276,7 +294,7 @@ def generate_html(output_path):
 
   <h2 class="ieee-section">III. Proposed Solution & Architecture</h2>
 
-  <h3 class="ieee-subsection">A. System Configuration & Parameters</h3>
+  <h3 class="ieee-subsection">A. Baseline System Parameters</h3>
   <p>The proposed cache controller interfaces a processor core issuing 32-bit word-aligned memory requests with a main memory model possessing configurable access latency (<code>MEM_LATENCY = 4</code> cycles per word). The baseline configuration specifies:</p>
   <ul>
     <li><b>Address Width ($ADDR\_W$):</b> 32 bits.</li>
@@ -284,6 +302,11 @@ def generate_html(output_path):
     <li><b>Block Size ($B$):</b> 16 Bytes (4 words of 32 bits each).</li>
     <li><b>Number of Lines ($N$):</b> $N = C / B = 1024 / 16 = 64$ lines.</li>
   </ul>
+
+  <div class="figure-box">
+    <img src="../docs/architecture_block_diagram.svg" alt="System Architecture Block Diagram" />
+    <div class="figure-caption"><b>Fig. 1.</b> Microarchitecture block diagram of the direct-mapped cache controller, showing CPU interface, address decoder, storage arrays, tag comparator, FSM controller, and memory interface.</div>
+  </div>
 
   <h3 class="ieee-subsection">B. Address Decomposition</h3>
   <p>The 32-bit CPU byte address is decomposed into three orthogonal fields using parameterized Verilog <code>$clog2</code> functions:</p>
@@ -343,6 +366,11 @@ def generate_html(output_path):
     <span class="eq-num">(6)</span>
   </div>
 
+  <div class="figure-box">
+    <img src="../docs/waveforms/waveform_cold_miss.svg" alt="Cold Miss Waveform" />
+    <div class="figure-caption"><b>Fig. 2.</b> Cycle-accurate simulation waveform of a cold miss and 4-word refill sequence, demonstrating the 22-cycle miss service latency ($L=4$).</div>
+  </div>
+
   <h2 class="ieee-section">IV. Individual Contributions</h2>
   <p>The Phase I prototype was engineered by five team members with clear division of ownership:</p>
   <ul>
@@ -366,8 +394,18 @@ def generate_html(output_path):
   </ul>
   <p class="no-indent">All 146 directed assertions pass with 0 errors.</p>
 
+  <div class="figure-box">
+    <img src="../analysis/results/hit_ratio_by_trace.png" alt="Hit Ratio by Trace" />
+    <div class="figure-caption"><b>Fig. 3.</b> Cache hit ratio across seven deterministic workload traces for the 1 KiB baseline configuration, demonstrating high temporal reuse (loop) and conflict thrashing (matrix column).</div>
+  </div>
+
   <h3 class="ieee-subsection">B. Trace Co-Simulation Results</h3>
   <p>Seven deterministic 4096-access workloads were evaluated against the Python golden model. The <b>Repeated Loop</b> workload achieves a <b>99.22% hit ratio</b> (AMAT 1.164 cycles) due to temporal locality. <b>Sequential</b> and <b>Row-Major Matrix</b> traversals achieve exactly <b>75.00% hit ratio</b> (AMAT 6.25 cycles), matching the theoretical $1 - (1/4)$ spatial reuse boundary. The <b>Column-Major Matrix</b> traversal yields 0.00% hits, demonstrating direct-mapped conflict thrashing.</p>
+
+  <div class="figure-box">
+    <img src="../analysis/results/amat_vs_block_size.png" alt="AMAT vs Block Size" />
+    <div class="figure-caption"><b>Fig. 4.</b> AMAT sensitivity across block sizes (8 B to 64 B), illustrating the architectural trade-off between spatial reuse and increasing miss transfer duration.</div>
+  </div>
 
   <h3 class="ieee-subsection">C. FPGA Synthesis</h3>
   <p>Synthesis targeting Xilinx 7-series yields 312 logic LUTs, 150 distributed RAM primitives (<code>RAM64X1S</code>), 133 flip-flops, and 0 Block RAMs, confirming that asynchronous reads map to distributed RAM. Static timing on Lattice iCE40 reports an Fmax of <b>83.15 MHz</b>.</p>
@@ -389,7 +427,7 @@ def generate_html(output_path):
 """
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html)
-    print(f"Generated Phase I IEEE HTML report at: {output_path}")
+    print(f"Generated Phase I IEEE HTML report with figures at: {output_path}")
 
 if __name__ == '__main__':
     html_file = '/Users/ash/CascadeProjects/projects..../MCA/mca-capstone/report/ieee_project_report.html'
@@ -403,4 +441,4 @@ if __name__ == '__main__':
         html_file
     ]
     res = subprocess.run(cmd, capture_output=True, text=True)
-    print(f"Compiled Phase I IEEE PDF report to: {pdf_file}")
+    print(f"Compiled Phase I IEEE PDF report with figures to: {pdf_file}")
