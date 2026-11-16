@@ -13,7 +13,7 @@ A parameterized, synthesizable **Direct-Mapped Cache Controller** in Verilog wit
 ## 📌 Phase I Submission Deliverables
 
 - 📄 **IEEE Project Report (PDF):** [`report/ieee_project_report.pdf`](report/ieee_project_report.pdf)
-- 🎥 **Prototype Demo Video Link:** `[Insert Video URL Here - e.g. YouTube / Google Drive]` *(See single-presenter script: [`report/video_script.md`](report/video_script.md))*
+- 🎥 **Prototype Demo Video Link:** [Prototype Demonstration Video (Google Drive)](https://drive.google.com/drive/folders/1o7124f-L4o_MpETQ42nz_No1Ag2AnOtB?usp=sharing)
 - 📊 **Architecture Block Diagram:** [`docs/architecture_block_diagram.svg`](docs/architecture_block_diagram.svg)
 - 📋 **Phase I Submission Form:** [Google Form Submission](https://docs.google.com/forms/d/e/1FAIpQLSc6Cx8OrOQLGj_X2ZMkyG5jc8mokq36mGRq2x8jGRNV1sbegA/viewform) *(Deadline: Nov 16, 2026, 11:59 PM GMT+5:30)*
 
@@ -162,9 +162,8 @@ make wave
 │   ├── hit_miss_report.md              # Workload performance analysis & AMAT study
 │   ├── synthesis.md                    # Detailed synthesis findings & Fmax reports
 │   └── viva_m5.md                      # Comprehensive viva interview questions & answers
-└── report/                             # Phase I official IEEE report and video script
-    ├── ieee_project_report.pdf         # Official IEEE 2-column project report for submission
-    └── video_script.md                 # 4-minute single presenter video recording script
+└── report/                             # Phase I official IEEE report
+    └── ieee_project_report.pdf         # Official IEEE 2-column project report for submission
 ```
 
 ---
