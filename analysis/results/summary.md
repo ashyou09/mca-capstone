@@ -1,31 +1,28 @@
 # Hit/miss and AMAT analysis
 
-**Source:** Python reference model (not RTL simulation).  
-**Configuration:** 1 KiB cache, 16-byte blocks, 4 words/block, MEM_LATENCY=4.  
-**Workload:** seven deterministic, read-only traces; 4096 accesses each.
+Python reference model; cache 1024 B, block 16 B, MEM_LATENCY 4.
 
-| Trace | Accesses | Hit % | Miss % | Compulsory | Conflict | Capacity | Miss penalty | AMAT (cycles) |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Loop | 4096 | 99.22 | 0.78 | 32 | 0 | 0 | 21 | 1.164 |
-| Matrix column | 4096 | 0.00 | 100.00 | 1024 | 3072 | 0 | 21 | 22.000 |
-| Matrix row | 4096 | 75.00 | 25.00 | 1024 | 0 | 0 | 21 | 6.250 |
-| Mixed | 4096 | 79.42 | 20.58 | 618 | 217 | 8 | 21 | 5.322 |
-| Random | 4096 | 0.46 | 99.54 | 3616 | 2 | 459 | 21 | 21.903 |
-| Sequential | 4096 | 75.00 | 25.00 | 1024 | 0 | 0 | 21 | 6.250 |
-| Stride | 4096 | 0.00 | 100.00 | 2390 | 1364 | 342 | 21 | 22.000 |
+| Trace | Accesses | Hit % | Miss % | Compulsory | Conflict | Capacity | Miss penalty | Measured AMAT | Formula AMAT |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| loop | 4096 | 99.22 | 0.78 | 32 | 0 | 0 | 21 | 1.164 | 1.164 |
+| matrix_col | 4096 | 0.00 | 100.00 | 1024 | 3072 | 0 | 21 | 22.000 | 22.000 |
+| matrix_row | 4096 | 75.00 | 25.00 | 1024 | 0 | 0 | 21 | 6.250 | 6.250 |
+| mixed | 4096 | 79.42 | 20.58 | 618 | 217 | 8 | 21 | 5.322 | 5.322 |
+| random | 4096 | 0.46 | 99.54 | 3616 | 2 | 459 | 21 | 21.903 | 21.903 |
+| sample | 8 | 50.00 | 50.00 | 3 | 1 | 0 | 21 | 11.500 | 11.500 |
+| seq | 4096 | 75.00 | 25.00 | 1024 | 0 | 0 | 21 | 6.250 | 6.250 |
+| stride | 4096 | 0.00 | 100.00 | 2390 | 1364 | 342 | 21 | 22.000 | 22.000 |
 
 ## Interpretation
 
-The 512-byte loop working set fits in the cache and reaches 99.22% hits after its compulsory fills. Sequential and row-major workloads exploit four-word spatial reuse. Column-major traversal of the same 64×64 matrix produces conflict misses because its 256-byte row stride maps blocks onto competing direct-mapped indices. The final stride phase deliberately alternates between two blocks 1 KiB apart.
+Sequential and row-major traces expose spatial locality; the repeated loop exposes temporal locality. Uniform random traffic spans a much larger footprint. The stride trace ends by alternating between two blocks 1 KiB apart, which share one direct-mapped index but fit in the equal-capacity fully associative shadow.
 
-## AMAT convention
+Compulsory misses are first references to blocks. A later direct-mapped miss that would hit in an equal-capacity fully associative LRU shadow is classified as conflict; a miss in both is classified as capacity. This is an analytical classification, not extra hardware.
 
-The repository FSM defines end-to-end miss latency as W × (L + 1) + 2. With W=4 and L=4, miss latency is 22 cycles and the additional miss penalty over the one-cycle hit time is 21 cycles.
+## AMAT
 
-AMAT = 1 + miss_rate × 21.
-
-For the sequential trace, AMAT = 1 + 0.25 × 21 = 6.25 cycles. Formula and measured reference-model average latency agree exactly.
+AMAT = hit_time + miss_rate × miss_penalty. The repository FSM defines miss latency = words_per_block × (MEM_LATENCY + 1) + 2; miss penalty = miss latency − 1. For 16-byte blocks and MEM_LATENCY=4, miss latency is 22 cycles and miss penalty is 21 cycles.
 
 ## Evidence boundary
 
-These are Python reference-model results. They do not establish RTL correctness. Run `make test` for M4's RTL/golden-model comparison across the traces. Use `make analysis-rtl T=seq` only after the corresponding RTL trace test passes.
+Default outputs are Python reference-model results, not RTL measurements. RTL mode validates every CSV row (index, operation, address, hit/miss, returned data and latency) against the supplied trace and reference model before reporting measured RTL metrics.
