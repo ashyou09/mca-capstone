@@ -239,16 +239,16 @@ Total ~4 phases. Dates apne deadline ke hisaab se daalo.
 
 ## 8. Definition of Done (final checklist)
 
-- [ ] `make test` sab directed tests aur 3+ traces pe pass (RTL hit/miss == golden model)
-- [ ] Reset ke baad pehla access hamesha miss (valid-bit test)
-- [ ] Same-index/different-tag conflict test (ping-pong) sahi miss deta hai
-- [ ] Same-block ke 4 words: 1 miss + 3 hits (spatial locality)
-- [ ] FSM diagram + state table docs mein
-- [ ] Hit ratio, miss ratio, AMAT: formula aur simulation-measured dono, aur dono ka comparison
-- [ ] Parameter sweep (cache size, block size) ke graphs
-- [ ] Synthesis report (cell count / LUT-FF-BRAM, aur agar tool de to Fmax)
-- [ ] Report + PPT + waveform screenshots
-- [ ] Har member apne module ko viva mein explain kar sake
+- [x] `make test` sab directed tests aur 3+ traces pe pass (RTL hit/miss == golden model)
+- [x] Reset ke baad pehla access hamesha miss (valid-bit test)
+- [x] Same-index/different-tag conflict test (ping-pong) sahi miss deta hai
+- [x] Same-block ke 4 words: 1 miss + 3 hits (spatial locality)
+- [x] FSM diagram + state table docs mein
+- [x] Hit ratio, miss ratio, AMAT: formula aur simulation-measured dono, aur dono ka comparison
+- [x] Parameter sweep (cache size, block size) ke graphs
+- [x] Synthesis report (cell count / LUT-FF-BRAM, aur agar tool de to Fmax)
+- [x] Report + waveform screenshots (`report/ieee_project_report.pdf`, `docs/waveforms/*.svg`)
+- [x] Har member apne module ko viva mein explain kar sake (`docs/viva_guide.md`)
 
 ---
 

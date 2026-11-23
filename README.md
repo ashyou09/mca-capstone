@@ -4,18 +4,18 @@
 [![Verification Suite](https://img.shields.io/badge/Verification-100%25%20Passing%20(146%20checks)-brightgreen.svg)](tb/)
 [![Synthesis](https://img.shields.io/badge/Synthesis-Yosys%200.71-orange.svg)](synth/)
 [![Workload Analysis](https://img.shields.io/badge/Workloads-7%20Traces%20(4096%20acc)-purple.svg)](analysis/)
-[![Phase I Evaluation](https://img.shields.io/badge/Phase%20I-Submission%20Ready-success.svg)](report/)
+[![Phase I & II Complete](https://img.shields.io/badge/Project-Phase%20I%20%26%20II%20Complete%20(v1.0)-success.svg)](report/)
 
 A parameterized, synthesizable **Direct-Mapped Cache Controller** in Verilog with modular datapath hierarchy, Mealy/Moore controller FSM, behavioral main-memory interface, bit-accurate Python golden model, automated regression test suite, and comprehensive architectural performance analysis.
 
 ---
 
-## 📌 Phase I Submission Deliverables
+## 📌 Project Deliverables (Phase I & Phase II)
 
-- 📄 **IEEE Project Report (PDF):** [`report/ieee_project_report.pdf`](report/ieee_project_report.pdf)
+- 📄 **Final IEEE Project Report (PDF):** [`report/ieee_project_report.pdf`](report/ieee_project_report.pdf)
 - 🎥 **Prototype Demo Video Link:** [Prototype Demonstration Video (Google Drive)](https://drive.google.com/drive/folders/1o7124f-L4o_MpETQ42nz_No1Ag2AnOtB?usp=sharing)
 - 📊 **Architecture Block Diagram:** [`docs/architecture_block_diagram.svg`](docs/architecture_block_diagram.svg)
-- 📋 **Phase I Submission Form:** [Google Form Submission](https://docs.google.com/forms/d/e/1FAIpQLSc6Cx8OrOQLGj_X2ZMkyG5jc8mokq36mGRq2x8jGRNV1sbegA/viewform) *(Deadline: Nov 16, 2026, 11:59 PM GMT+5:30)*
+- 🎓 **Team Project Interview / Viva Guide:** [`docs/viva_guide.md`](docs/viva_guide.md)
 
 ---
 
@@ -27,7 +27,7 @@ A parameterized, synthesizable **Direct-Mapped Cache Controller** in Verilog wit
 | **M2** | **Ashutosh Singh** | Storage Datapath Engineer | `rtl/addr_decoder.v`, `rtl/tag_ram.v`, `rtl/valid_ram.v`, `rtl/data_ram.v`, `rtl/tag_comparator.v`, M2 Unit Tests (`tb/tb_*.v`) |
 | **M3** | **Narendra Singh** | Memory Interface & FPGA Synthesis | `rtl/main_memory.v`, `synth/synth.ys`, `synth/sweep.sh`, `synth/run_fmax.sh`, `docs/synthesis.md` |
 | **M4** | **Shreya Suman** | Design Verification Engineer | `analysis/golden_model.py`, `analysis/compare.py`, `tb/tb_cache_directed.v`, `tb/tb_cache_trace.v`, `Makefile`, `docs/verification.md` |
-| **M5** | **Ranvendra Pratap Singh** | Workload & Architectural Analysis | `traces/gen_traces.py`, `analysis/analyze.py`, 7 trace workloads, `docs/hit_miss_report.md`, `docs/viva_m5.md`, `report/final_report.md` |
+| **M5** | **Ranvendra Pratap Singh** | Workload & Architectural Analysis | `traces/gen_traces.py`, `analysis/analyze.py`, 7 trace workloads, `docs/hit_miss_report.md`, `docs/viva_m5.md`, `report/ieee_project_report.pdf` |
 
 ---
 
@@ -161,9 +161,10 @@ make wave
 │   ├── verification.md                 # Test matrix, fault injection & coverage report
 │   ├── hit_miss_report.md              # Workload performance analysis & AMAT study
 │   ├── synthesis.md                    # Detailed synthesis findings & Fmax reports
-│   └── viva_m5.md                      # Comprehensive viva interview questions & answers
-└── report/                             # Phase I official IEEE report
-    └── ieee_project_report.pdf         # Official IEEE 2-column project report for submission
+│   ├── viva_m5.md                      # M5 viva interview questions & answers
+│   └── viva_guide.md                   # Unified Phase II interview guide (M1-M5)
+└── report/                             # Final IEEE project report
+    └── ieee_project_report.pdf         # Final IEEE 2-column project report (Phase II)
 ```
 
 ---
