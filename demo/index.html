@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Direct-Mapped Cache Controller — Interactive Story Demo</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="ambient-glow" id="ambientGlow" aria-hidden="true"></div>
+  <div class="bg-hex-layer" id="bgHexLayer" aria-hidden="true"></div>
+
+  <!-- Top 1-Click Chapter Navigation Bar -->
+  <header class="top-bar">
+    <div class="progress-track" aria-hidden="true">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <nav class="chapter-nav" id="chapterNav" aria-label="Chapter quick jump">
+      <button class="chap-pill" data-slide="0" data-chap="Intro">Intro</button>
+      <button class="chap-pill" data-slide="4" data-chap="Chapter A" style="--c: var(--acc-a)">A &middot; Pankaj</button>
+      <button class="chap-pill" data-slide="6" data-chap="Chapter B" style="--c: var(--acc-b)">B &middot; Ashutosh</button>
+      <button class="chap-pill" data-slide="9" data-chap="Chapter C" style="--c: var(--acc-c)">C &middot; Narendra</button>
+      <button class="chap-pill" data-slide="12" data-chap="Chapter D" style="--c: var(--acc-d)">D &middot; Shreya</button>
+      <button class="chap-pill" data-slide="15" data-chap="Chapter E" style="--c: var(--acc-e)">E &middot; Ranvendra</button>
+      <button class="chap-pill" data-slide="18" data-chap="Finale" style="--c: var(--acc-b)">Live Sim</button>
+      <button class="chap-pill" data-slide="19" data-chap="Closing" style="--c: var(--hit)">Summary</button>
+    </nav>
+  </header>
+
+  <nav class="dot-nav" id="dotNav" aria-label="Slide navigation"></nav>
+
+  <main class="deck" id="deck">
+
+    <!-- SLIDE 1: TITLE -->
+    <section class="slide is-active is-cover" data-id="1" data-chapter="Intro" data-person="Overview" data-title="Title"
+      data-note="Good morning! Our MCA Capstone builds a fast 1 KiB Direct-Mapped Cache Controller in Verilog. Press the right arrow key to step through our story from Person A to Person E.">
+      <div class="slide-inner center-stage">
+        <div class="pill-badge">MCA Capstone &middot; Phase I &amp; II Complete</div>
+        <h1 class="hero-title">Direct-Mapped Cache Controller<br /><span class="accent-grad">in Synthesizable Verilog</span></h1>
+        <p class="hero-sub">Making slow main memory feel instant &mdash; our 5-member journey from CPU bottleneck to verified FPGA hardware.</p>
+
+        <div class="member-chips">
+          <button class="member-chip" data-jump="4" style="--acc: var(--acc-a)">
+            <span class="chip-badge">A</span>
+            <div><strong>Pankaj Baid</strong><small>M1 &middot; Controller FSM</small></div>
+          </button>
+          <button class="member-chip" data-jump="6" style="--acc: var(--acc-b)">
+            <span class="chip-badge">B</span>
+            <div><strong>Ashutosh Singh</strong><small>M2 &middot; Storage Datapath</small></div>
+          </button>
+          <button class="member-chip" data-jump="9" style="--acc: var(--acc-c)">
+            <span class="chip-badge">C</span>
+            <div><strong>Narendra Singh</strong><small>M3 &middot; Memory &amp; Synthesis</small></div>
+          </button>
+          <button class="member-chip" data-jump="12" style="--acc: var(--acc-d)">
+            <span class="chip-badge">D</span>
+            <div><strong>Shreya Suman</strong><small>M4 &middot; Verification</small></div>
+          </button>
+          <button class="member-chip" data-jump="15" style="--acc: var(--acc-e)">
+            <span class="chip-badge">E</span>
+            <div><strong>Ranvendra Pratap Singh</strong><small>M5 &middot; Workloads &amp; AMAT</small></div>
+          </button>
+        </div>
+
+        <div class="start-hint">Press <kbd>&rarr;</kbd> or click any member above &nbsp;&middot;&nbsp; <kbd>N</kbd> Speaker Notes &nbsp;&middot;&nbsp; <kbd>F</kbd> Fullscreen</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: MEMORY WALL -->
+    <section class="slide" data-id="2" data-chapter="Intro" data-person="Problem" data-title="The Memory Wall"
+      data-note="Think of the CPU as a fast chef and main memory as a far-away grocery store. Without a cache, every fetch stalls 22 clock cycles; with our 1 KiB cache desk, hits return in just 1 cycle.">
+      <div class="slide-inner">
+        <div class="slide-header">
+          <span class="eyebrow">01 &middot; Why Cache Matters</span>
+          <h2>The Memory Wall: Slow DRAM vs. Fast Cache</h2>
+          <p class="slide-sub">Why our 1&nbsp;KiB on-chip &ldquo;study desk&rdquo; beats walking to a slow off-chip library.</p>
+        </div>
+
+        <div class="card wall-stage">
+          <div class="wall-controls">
+            <span class="muted">Live latency race: fetching 1 word on a Cache Hit vs. a DRAM Miss Refill</span>
+            <button class="btn btn-sm" id="btnReplayWall">Replay Race</button>
+          </div>
+
+          <div class="race-lane">
+            <div class="lane-node node-cpu">CPU Core</div>
+            <div class="lane-track">
+              <div class="lane-label">Fast Path &mdash; Word already in cache <strong class="hit-txt">(1 cycle HIT)</strong></div>
+              <div class="track-rail"><div class="packet packet-fast" id="pktFast"></div></div>
+            </div>
+            <div class="lane-node node-cache">1 KiB Cache<br /><small>1 cycle</small></div>
+            <div class="tick-readout hit-txt"><span id="tickFast">0</span> cyc</div>
+          </div>
+
+          <div class="race-lane">
+            <div class="lane-node node-cpu">CPU Core</div>
+            <div class="lane-track">
+              <div class="lane-label">Slow Path &mdash; Refill 4 words from DRAM <strong class="miss-txt">(22 cycles MISS)</strong></div>
+              <div class="track-rail"><div class="packet packet-slow" id="pktSlow"></div></div>
+            </div>
+            <div class="lane-node node-dram">Main Memory<br /><small>MEM_LATENCY = 4</small></div>
+            <div class="tick-readout miss-txt"><span id="tickSlow">0</span> cyc</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card accent-left-hit">
+            <h3 class="card-title hit-txt">1. Temporal Locality (&ldquo;Reuse in Time&rdquo;)</h3>
+            <p class="body-text">Data used right now will likely be needed <strong>again very soon</strong> (like loop variables). Keeping it on our counter hits <strong>99.22%</strong> on <code>loop</code>.</p>
+          </div>
+          <div class="card accent-left-a">
+            <h3 class="card-title accent-a-txt">2. Spatial Locality (&ldquo;Neighbors Together&rdquo;)</h3>
+            <p class="body-text">On a miss we fetch <strong>4 neighboring words at once</strong> (16&nbsp;Bytes). The next 3 words then hit in <strong>1 cycle each</strong> &rarr; <strong>75.00%</strong> hits on arrays.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: DESIGN AT A GLANCE -->
+    <section class="slide" data-id="3" data-chapter="Intro" data-person="Architecture" data-title="Design at a Glance"
+      data-note="Here are our baseline hardware specs: 32-bit addresses, 1 KiB total cache split into 64 direct-mapped lines of 16 bytes each. Click the diagram anytime to zoom in for details.">
+      <div class="slide-inner">
+        <div class="slide-header">
+          <span class="eyebrow">02 &middot; Baseline Hardware Specs</span>
+          <h2>Our Direct-Mapped Design at a Glance</h2>
+          <p class="slide-sub">Simple fixed slot per memory block gives 1-cycle hits with zero search hardware. <em>(Click diagram to zoom)</em></p>
+        </div>
+
+        <div class="stat-strip-5">
+          <div class="stat-card"><div class="stat-num count-up" data-target="32" data-suffix="-bit">0</div><div class="stat-lbl">CPU Address Width</div></div>
+          <div class="stat-card"><div class="stat-num count-up" data-target="1024" data-suffix=" B">0</div><div class="stat-lbl">Cache Capacity (1 KiB)</div></div>
+          <div class="stat-card"><div class="stat-num count-up" data-target="16" data-suffix=" B">0</div><div class="stat-lbl">Block Size (4 Words)</div></div>
+          <div class="stat-card"><div class="stat-num count-up" data-target="64" data-suffix="">0</div><div class="stat-lbl">Cache Lines</div></div>
+          <div class="stat-card"><div class="stat-num count-up" data-target="4" data-suffix=" cyc">0</div><div class="stat-lbl">Memory Delay / Word</div></div>
+        </div>
+
+        <div class="card svg-frame zoom-card">
+          <div class="card-sub-bar">
+            <span>Full System Block Diagram (<code>cache_top</code> &harr; <code>main_memory</code>)</span>
+            <span class="muted">22-bit Tag &middot; 6-bit Index &middot; 4-bit Offset &middot; Click image to zoom</span>
+          </div>
+          <div class="media-wrap arch-wrap">
+            <img src="../docs/architecture_block_diagram.svg" class="zoomable-img" alt="Direct-Mapped Cache Controller Architecture Block Diagram" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: TEAM STORY MAP -->
+    <section class="slide" data-id="4" data-chapter="Intro" data-person="Team Map" data-title="Team Story Map"
+      data-note="We split the project across 5 clear owners from Person A to E: Pankaj built the FSM controller, Ashutosh built storage, Narendra built memory and synthesis, Shreya verified all tests, and Ranvendra analyzed workloads.">
+      <div class="slide-inner">
+        <div class="slide-header">
+          <span class="eyebrow">03 &middot; End-to-End Ownership</span>
+          <h2>Our Team Story: Five Engineers, One Verified Chip</h2>
+          <p class="slide-sub">Click any chapter pill above (or follow slides 5&ndash;18) to walk through each teammate&rsquo;s work in order.</p>
+        </div>
+
+        <div class="story-map-wrap">
+          <svg class="story-line-svg" viewBox="0 0 1100 40" preserveAspectRatio="none" aria-hidden="true">
+            <line id="storyPathLine" x1="80" y1="20" x2="1020" y2="20" stroke="#3b4d74" stroke-width="3" stroke-dasharray="1000" stroke-dashoffset="1000" />
+          </svg>
+          <div class="story-nodes">
+            <article class="card story-node" style="--acc: var(--acc-a)">
+              <div class="node-badge">A</div>
+              <h3>Pankaj Baid</h3>
+              <p class="role">Team Lead &amp; Architect</p>
+              <p class="story-desc">Built the 4-state FSM &ldquo;brain&rdquo; and wired the whole cache together.</p>
+              <code class="file-tag">cache_controller.v &middot; cache_top.v</code>
+            </article>
+            <article class="card story-node" style="--acc: var(--acc-b)">
+              <div class="node-badge">B</div>
+              <h3>Ashutosh Singh</h3>
+              <p class="role">Storage Datapath</p>
+              <p class="story-desc">Built address slicing, tag/valid/data RAMs, and hit comparator.</p>
+              <code class="file-tag">addr_decoder &middot; *_ram &middot; comparator</code>
+            </article>
+            <article class="card story-node" style="--acc: var(--acc-c)">
+              <div class="node-badge">C</div>
+              <h3>Narendra Singh</h3>
+              <p class="role">Memory &amp; Synthesis</p>
+              <p class="story-desc">Built main memory model, 24-run Yosys sweep, and 83.15 MHz timing.</p>
+              <code class="file-tag">main_memory.v &middot; synth/</code>
+            </article>
+            <article class="card story-node" style="--acc: var(--acc-d)">
+              <div class="node-badge">D</div>
+              <h3>Shreya Suman</h3>
+              <p class="role">Design Verification</p>
+              <p class="story-desc">Built Python golden twin, 146 directed checks, and bug mutations.</p>
+              <code class="file-tag">golden_model.py &middot; tb_* &middot; Makefile</code>
+            </article>
+            <article class="card story-node" style="--acc: var(--acc-e)">
+              <div class="node-badge">E</div>
+              <h3>Ranvendra Pratap Singh</h3>
+              <p class="role">Workloads &amp; AMAT</p>
+              <p class="story-desc">Built 7 memory traces, 3-C miss breakdown, and sweep plots.</p>
+              <code class="file-tag">gen_traces.py &middot; analyze.py</code>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: CHAPTER A COVER -->
+    <section class="slide chapter-cover is-cover" data-id="5" data-chapter="Chapter A" data-person="Pankaj Baid" data-title="Chapter A · Pankaj Baid" style="--acc: var(--acc-a)"
+      data-note="Chapter A is Pankaj Baid, our Team Lead. He designed the Controller FSM that resolves hits immediately and manages 4-word memory refills cleanly.">
+      <div class="slide-inner center-stage">
+        <div class="cover-letter">A</div>
+        <div class="cover-tag">Member M1 &middot; Team Lead &amp; System Architect</div>
+        <h2 class="cover-name">Pankaj Baid</h2>
+        <p class="cover-story">&ldquo;I built the FSM brain that answers cache hits in 1 cycle and coordinates safe 4-word memory refills in 22 cycles.&rdquo;</p>
+        <div class="phase-chips">
+          <span class="p-chip"><strong>Phase I:</strong> <code>cache_controller.v</code> &middot; <code>cache_top.v</code> &middot; <code>docs/fsm.md</code></span>
+          <span class="p-chip"><strong>Phase II:</strong> End-to-End Integration &middot; Architecture/FSM in Final IEEE Report</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: A · CONTROLLER FSM (INTERACTIVE) -->
+    <section class="slide" data-id="6" data-chapter="Chapter A" data-person="Pankaj Baid" data-title="A · Controller FSM" style="--acc: var(--acc-a)"
+      data-note="Let's click Simulate HIT first: notice S_IDLE answers in Cycle 1 with cpu_ready and stat_hit. Now click Simulate MISS: the FSM steps through 4 refill words (20 cycles), commits tag/valid only on word 3, and finishes in Cycle 22.">
+      <div class="slide-inner">
+        <div class="slide-header">
+          <span class="eyebrow">Person A &middot; rtl/cache_controller.v</span>
+          <h2>The Brain: 4-State Controller FSM</h2>
+          <p class="slide-sub">Click <strong>Simulate HIT</strong> or <strong>Simulate MISS</strong> to watch state transitions and hardware signals step-by-step.</p>
+        </div>
+
+        <div class="fsm-layout">
+          <div class="card fsm-stage">
+            <div class="fsm-toolbar">
+              <div class="btn-group">
+                <button class="btn btn-sm btn-hit" id="btnFsmHit">Simulate HIT (1 cycle)</button>
+                <button class="btn btn-sm btn-miss" id="btnFsmMiss">Simulate MISS (22 cycles)</button>
+              </div>
+              <div class="fsm-telemetry">
+                <span>Cycle: <strong id="fsmCycle">0</strong></span>
+                <span>Word: <strong id="fsmWord">-</strong></span>
+              </div>
+            </div>
+
+            <svg class="fsm-svg" viewBox="0 0 640 250" aria-label="Controller FSM State Diagram">
+              <defs>
+                <marker id="arr" viewBox="0 0 10 8" refX="8" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+                  <path d="M0,1 L9,4 L0,7 z" fill="#64748b" />
+                </marker>
+              </defs>
+              <path d="M 185 82 L 305 82" class="fsm-edge" id="edgeIdleRefill" marker-end="url(#arr)" />
+              <text x="245" y="72" class="edge-lbl">miss (stat_miss=1)</text>
+
+              <path d="M 380 38 C 365 8, 415 8, 402 38" class="fsm-edge" id="edgeRefillLoop" marker-end="url(#arr)" />
+              <text x="390" y="14" class="edge-lbl">word 0..3</text>
+
+              <path d="M 455 82 L 515 145" class="fsm-edge" id="edgeRefillResp" marker-end="url(#arr)" />
+              <text x="508" y="108" class="edge-lbl">last ack</text>
+
+              <path d="M 480 180 L 185 118" class="fsm-edge" id="edgeRespIdle" marker-end="url(#arr)" />
+              <text x="330" y="166" class="edge-lbl">cpu_ready=1</text>
+
+              <path d="M 105 124 L 105 176" class="fsm-edge edge-dashed" marker-end="url(#arr)" />
+              <path d="M 145 176 L 145 124" class="fsm-edge edge-dashed" marker-end="url(#arr)" />
+
+              <g class="fsm-node is-lit" id="nodeIDLE">
+                <rect x="45" y="44" width="140" height="74" rx="14" />
+                <text x="115" y="75" class="st-name">S_IDLE</text>
+                <text x="115" y="95" class="st-sub">1-cycle Mealy hit</text>
+              </g>
+              <g class="fsm-node" id="nodeREFILL">
+                <rect x="315" y="44" width="145" height="74" rx="14" />
+                <text x="387" y="75" class="st-name">S_REFILL</text>
+                <text x="387" y="95" class="st-sub">Fetch 4 words</text>
+              </g>
+              <g class="fsm-node" id="nodeRESPOND">
+                <rect x="480" y="145" width="140" height="74" rx="14" />
+                <text x="550" y="176" class="st-name">S_RESPOND</text>
+                <text x="550" y="196" class="st-sub">Return cpu_rdata</text>
+              </g>
+              <g class="fsm-node fsm-optional" id="nodeWRITE">
+                <rect x="50" y="178" width="150" height="54" rx="12" />
+                <text x="125" y="202" class="st-name">S_WRITE</text>
+                <text x="125" y="220" class="st-sub">WRITE_SUPPORT=1</text>
+              </g>
+            </svg>
+
+            <div class="lamp-row">
+              <div class="lamp" id="lampStatHit"><span class="dot"></span><code>stat_hit</code></div>
+              <div class="lamp" id="lampStatMiss"><span class="dot"></span><code>stat_miss</code></div>
+              <div class="lamp" id="lampMemReq"><span class="dot"></span><code>mem_req</code></div>
+              <div class="lamp" id="lampMemAck"><span class="dot"></span><code>mem_ack</code></div>
+              <div class="lamp" id="lampTagValidWe"><span class="dot"></span><code>tag_we &amp; valid_we</code></div>
+              <div class="lamp" id="lampCpuReady"><span class="dot"></span><code>cpu_ready</code></div>
+            </div>
+            <p class="sim-caption" id="fsmCaption">Click a simulation button above to animate the FSM.</p>
+          </div>
+
+          <div class="side-stack">
+            <div class="card">
+              <h3 class="card-title">Easy Key Rules</h3>
+              <ul class="clean-list">
+                <li><strong>Fast Hit (1 cyc):</strong> Mealy logic in <code>S_IDLE</code> replies in the arrival cycle.</li>
+                <li><strong>Miss Formula:</strong> <code>W&times;(L+1)+2</code> = <code>4&times;5+2</code> = <strong>22 cycles</strong> (penalty = <strong>21</strong>).</li>
+                <li><strong>No Half-Filled Lines:</strong> <code>tag_we</code> &amp; <code>valid_we</code> activate only on Word 3.</li>
+                <li><strong>No Double-Counting:</strong> <code>stat_miss</code> pulses once before leaving <code>S_IDLE</code>.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Phase I &amp; II Deliverables</h3>
+              <div class="mini-chips">
+                <span class="m-chip"><strong>Phase I:</strong> FSM + <code>cache_top.v</code> + <code>fsm.md</code></span>
+                <span class="m-chip"><strong>Phase II:</strong> System regression + IEEE FSM/Architecture</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: CHAPTER B COVER -->
+    <section class="slide chapter-cover is-cover" data-id="7" data-chapter="Chapter B" data-person="Ashutosh Singh" data-title="Chapter B · Ashutosh Singh" style="--acc: var(--acc-b)"
+      data-note="Chapter B is Ashutosh Singh, Storage Datapath Engineer. He built all five parameterized Verilog blocks that slice addresses, store tags/valid/data, and decide Hit or Miss.">
+      <div class="slide-inner center-stage">
+        <div class="cover-letter">B</div>
+        <div class="cover-tag">Member M2 &middot; Storage Datapath Engineer</div>
+        <h2 class="cover-name">Ashutosh Singh</h2>
+        <p class="cover-story">&ldquo;I built all five parameterized memory and lookup modules so every cache hit completes combinationally in 1 clock cycle.&rdquo;</p>
+        <div class="phase-chips">
+          <span class="p-chip"><strong>Phase I:</strong> 5 Parameterized RTL Modules + 5 Unit Testbenches</span>
+          <span class="p-chip"><strong>Phase II:</strong> LUTRAM vs. BRAM Analysis &middot; SVG Fixes &middot; IEEE Report &amp; <code>v1.0</code></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: B · ADDRESS DECODER (INTERACTIVE) -->
+    <section class="slide" data-id="8" data-chapter="Chapter B" data-person="Ashutosh Singh" data-title="B · Address Decoder" style="--acc: var(--acc-b)"
+      data-note="Look at 0x00001A2C: it maps to Index 34, Tag 0x6, Word 3. Now click 0x00001E2C: same Index 34, different Tag 0x7! That's why two addresses 1 KiB apart fight for Line 34.">
+      <div class="slide-inner">
+        <div class="slide-header">
+          <span class="eyebrow">Person B &middot; rtl/addr_decoder.v</span>
+          <h2>Interactive 32-Bit Address Decoder</h2>
+          <p class="slide-sub">Every 32-bit address splits using <code>$clog2</code> wiring (<strong>0 LUTs</strong>). Click presets to see a real index collision!</p>
+        </div>
+
+        <div class="card decoder-toolbar">
+          <div class="input-group">
+            <label for="addrInput">Hex Address:</label>
+            <input type="text" id="addrInput" value="0x00001A2C" spellcheck="false" />
+            <span class="input-err" id="addrErr" role="alert"></span>
+          </div>
+          <div class="preset-group">
+            <span class="muted">Try Presets:</span>
+            <button class="btn btn-sm preset-addr" data-addr="0x00001A2C"><code>0x00001A2C</code></button>
+            <button class="btn btn-sm preset-addr" data-addr="0x00001E2C"><code>0x00001E2C</code> (Conflict!)</button>
+            <button class="btn btn-sm preset-addr" data-addr="0x00002010"><code>0x00002010</code></button>
+            <button class="btn btn-sm preset-addr" data-addr="0x00002410"><code>0x00002410</code></button>
+          </div>
+        </div>
+
+        <div class="card bit-visualizer">
+          <div class="bit-legend">
+            <span class="leg-item"><i class="sw sw-tag"></i> Tag [31:10] (22 bits)</span>
+            <span class="leg-item"><i class="sw sw-idx"></i> Index [9:4] (6 bits)</span>
+            <span class="leg-item"><i class="sw sw-wsel"></i> Word Sel [3:2] (2 bits)</span>
+            <span class="leg-item"><i class="sw sw-byte"></i> Byte [1:0] (ignored)</span>
+          </div>
+          <div class="bit-grid" id="bitGrid"></div>
+        </div>
+
+        <div class="grid-3">
+          <div class="card decode-box" style="--box-acc: var(--acc-b)">
+            <span class="muted">TAG (22 bits)</span>
+            <strong class="decode-val" id="decTag">0x000006</strong>
+            <small>Checks if right memory block</small>
+          </div>
+          <div class="card decode-box" style="--box-acc: var(--acc-a)">
+            <span class="muted">INDEX (6 bits)</span>
+            <strong class="decode-val" id="decIdx">Line 34</strong>
+            <small>Selects 1 of 64 cache lines</small>
+          </div>
+          <div class="card decode-box" style="--box-acc: #c084fc">
+            <span class="muted">WORD SELECT (2 bits)</span>
+            <strong class="decode-val" id="decWord">Word 3</strong>
+            <small>Selects 1 of 4 words in block</small>
+          </div>
+        </div>
+
+        <div class="callout-bar">
+          <strong>Live Proof of Conflict:</strong> <code>0x00001A2C</code> &amp; <code>0x00001E2C</code> both point to <strong>Line 34</strong>, but have different Tags (<code>0x6</code> vs <code>0x7</code>) &rarr; guaranteed conflict eviction!
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: B · STORAGE & HIT CHECK (INTERACTIVE) -->
+    <section class="slide" data-id="9" data-chapter="Chapter B" data-person="Ashutosh Singh" data-title="B · Storage & Hit Check" style="--acc: var(--acc-b)"
+      data-note="Let's click Lookup twice on 0x1A2C: first click misses and fills 4 words into Line 34; second click hits in 1 cycle! Clicking Reset flashes all 64 valid flip-flops to 0 in a single clock cycle.">
+      <div class="slide-inner">
+        <div class="slide-header">
+          <span class="eyebrow">Person B &middot; tag_ram, valid_ram, data_ram, tag_comparator</span>
+          <h2>Interactive 64-Line Cache &amp; Hit/Miss Check</h2>
+          <p class="slide-sub">Pick an address below and click <strong>Lookup</strong> twice (1st = Miss &amp; 4-word refill, 2nd = Hit), then test <strong>1-Cycle Reset</strong>.</p>
+        </div>
+
+        <div class="storage-layout">
+          <div class="card cache-grid-card">
+            <div class="card-sub-bar s9-bar">
+              <div class="btn-group s9-presets">
+                <button class="btn btn-sm s9-pick is-selected" data-addr="0x00001A2C"><code>1A2C</code></button>
+                <button class="btn btn-sm s9-pick" data-addr="0x00001E2C"><code>1E2C</code></button>
+                <button class="btn btn-sm s9-pick" data-addr="0x00002010"><code>2010</code></button>
+                <button class="btn btn-sm s9-pick" data-addr="0x00002410"><code>2410</code></button>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-sm btn-accent-b" id="btnLookupSlide9">Lookup <code id="s9AddrLbl">0x00001A2C</code></button>
+                <button class="btn btn-sm btn-miss" id="btnResetSlide9">Reset (1-Cycle Clear)</button>
+              </div>
+            </div>
+            <div class="line-grid-64" id="s9Grid"></div>
+            <div class="pipeline-strip" id="s9Pipeline">
+              <div class="pipe-step" id="pipeValid"><code>valid_ram</code><span id="pipeValidVal">valid = 0</span></div>
+              <span class="pipe-arrow">&rarr;</span>
+              <div class="pipe-step" id="pipeTag"><code>tag_ram</code><span id="pipeTagVal">tag = -</span></div>
+              <span class="pipe-arrow">&rarr;</span>
+              <div class="pipe-step" id="pipeCmp"><code>hit = valid &amp; (a == b)</code><span id="pipeCmpVal">READY</span></div>
+            </div>
+            <div class="word-fill-strip">
+              <span class="muted">128-bit <code>data_ram</code> Row (<code id="s9LineIdx">Line 34</code>):</span>
+              <div class="words-4" id="s9Words">
+                <div class="w-slot">W0</div><div class="w-slot">W1</div><div class="w-slot">W2</div><div class="w-slot">W3</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="side-stack">
+            <div class="card">
+              <h3 class="card-title">Why Each Storage Design Choice Matters</h3>
+              <ul class="clean-list">
+                <li><strong><code>tag_ram</code> (64&times;22):</strong> Async read, no reset &rarr; packs cleanly into LUTRAM.</li>
+                <li><strong><code>valid_ram</code> (64 FFs):</strong> Flat 64-bit vector clears all lines in <strong>1 cycle</strong> (prevents false hit at <code>0x0</code>).</li>
+                <li><strong><code>data_ram</code> (64&times;128):</strong> Word write <code>mem[i][sel*32 +: 32]</code> updates 1 word per beat safely.</li>
+                <li><strong>FPGA Synthesis:</strong> 128 + 22 = <strong>150 <code>RAM64X1S</code> LUTRAMs</strong>, <strong>0 BRAM</strong> (async read gives 1-cycle hit).</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Phase I &amp; II Deliverables</h3>
+              <p class="body-text small"><strong>Phase I:</strong> 5 RTL modules + 5 self-checking unit tests (16 configs).<br /><strong>Phase II:</strong> LUTRAM/BRAM analysis, SVG diagram fixes, IEEE report &amp; <code>v1.0</code> release.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: CHAPTER C COVER -->
+    <section class="slide chapter-cover is-cover" data-id="10" data-chapter="Chapter C" data-person="Narendra Singh" data-title="Chapter C · Narendra Singh" style="--acc: var(--acc-c)"
+      data-note="Chapter C is Narendra Singh. He built the simulated Main Memory handshake model and ran 24 FPGA synthesis configurations plus static timing up to 83.15 MHz.">
+      <div class="slide-inner center-stage">
+        <div class="cover-letter">C</div>
+        <div class="cover-tag">Member M3 &middot; Main-Memory Interface &amp; Synthesis Lead</div>
+        <h2 class="cover-name">Narendra Singh</h2>
+        <p class="cover-story">&ldquo;I built the cycle-accurate DRAM interface model and proved our cache synthesizes with 0 latches up to 83.15 MHz.&rdquo;</p>
+        <div class="phase-chips">
+          <span class="p-chip"><strong>Phase I:</strong> <code>main_memory.v</code> &middot; 15/15 Latency &amp; Integration Tests</span>
+          <span class="p-chip"><strong>Phase II:</strong> 24-Config Yosys Sweep &middot; <code>nextpnr-ice40</code> Fmax &middot; <code>synthesis.md</code></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: C · MAIN MEMORY HANDSHAKE -->
+    <section class="slide" data-id="11" data-chapter="Chapter C" data-person="Narendra Singh" data-title="C · Memory Handshake" style="--acc: var(--acc-c)"
+      data-note="Watch the playhead sweep across 22 clock cycles: each of the 4 refill words waits 4 memory cycles and gets mem_ack on cycles 5, 10, 15, and 20, then cpu_ready fires at cycle 21.">
+      <div class="slide-inner">
+        <div class="slide-header">
+          <span class="eyebrow">Person C &middot; rtl/main_memory.v</span>
+          <h2>22-Cycle Main-Memory Refill Handshake</h2>
+          <p class="slide-sub">Watch the playhead sweep through a full 4-word burst miss when <code>MEM_LATENCY = 4</code> cycles per word.</p>
+        </div>
+
+        <div class="card wave-sim-card">
+          <div class="card-sub-bar">
+            <span>Word-by-Word Burst Refill for <code>0x00001A2C</code></span>
+            <button class="btn btn-sm" id="btnReplayWave">Replay Playhead</button>
+          </div>
+          <div class="wave-grid-wrap" id="waveGridWrap"></div>
+          <div class="wave-legend-bar">
+            <span class="hit-txt"><code>mem_ack</code> pulses at cycles <strong>5, 10, 15, 20</strong></span>
+            <span>&middot;</span>
+            <span class="accent-c-txt">Each word = <code>L + 1 = 5</code> cycles</span>
+            <span>&middot;</span>
+            <span class="accent-a-txt"><code>cpu_ready</code> fires at cycle <strong>21</strong> (22nd cycle total)</span>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <h3 class="card-title">Same Data Without Files</h3>
+            <p class="body-text small">256&nbsp;KiB (<code>65,536</code> words) filled using <code>mem[w] = w * 32'h9E3779B1</code> so Verilog &amp; Python always match identically.</p>
+          </div>
+          <div class="card">
+            <h3 class="card-title">Simulation-Only DRAM</h3>
+            <p class="body-text small">Models slow off-chip DRAM delays (<code>1, 4, 10</code> cycles) and is cleanly excluded from FPGA synthesis.</p>
+          </div>
+          <div class="card">
+            <h3 class="card-title">15 / 15 M3 Tests Pass</h3>
+            <p class="body-text small">Verified with <code>STRICT_RDATA=1</code>, multiple cache/block sizes, and optional writes (<code>WRITE_SUPPORT=0/1</code>).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12: C · SYNTHESIS & TIMING -->
+    <section class="slide" data-id="12" data-chapter="Chapter C" data-person="Narendra Singh" data-title="C · Synthesis & Timing" style="--acc: var(--acc-c)"
+      data-note="In synthesis, 82.2% of area is Data RAM and the FSM controller is only 31 gates (0.1%). On Xilinx we use 312 LUTs + 150 LUTRAMs with 0 latches; on iCE40 HX8K wrapped in BRAM we hit 83.15 MHz.">
+      <div class="slide-inner">
+        <div class="slide-header">
+          <span class="eyebrow">Person C &middot; Yosys 0.71 &amp; nextpnr-ice40</span>
+          <h2>FPGA Area Breakdown &amp; Clock Speed (Fmax)</h2>
+          <p class="slide-sub">Data storage takes 82.2% of chip area while the controller brain takes just 0.1% (<strong>0 latches across 24 runs</strong>).</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3 class="card-title">Where the Chip Area Goes (27,313 Generic Cells)</h3>
+            <div class="hbar-list" id="synthBars">
+              <div class="hbar-row"><span><code>data_ram</code></span><div class="hbar-track"><div class="hbar-fill" data-w="82.2" style="background: var(--acc-c)"></div></div><strong>82.2%</strong></div>
+              <div class="hbar-row"><span><code>tag_ram</code></span><div class="hbar-track"><div class="hbar-fill" data-w="14.3" style="background: #fbbf24"></div></div><strong>14.3%</strong></div>
+              <div class="hbar-row"><span><code>valid_ram</code></span><div class="hbar-track"><div class="hbar-fill" data-w="1.9" style="background: var(--acc-b)"></div></div><strong>1.9%</strong></div>
+              <div class="hbar-row"><span><code>cache_top</code></span><div class="hbar-track"><div class="hbar-fill" data-w="1.2" style="background: var(--acc-a)"></div></div><strong>1.2%</strong></div>
+              <div class="hbar-row"><span><code>tag_comparator</code></span><div class="hbar-track"><div class="hbar-fill" data-w="0.3" style="background: var(--acc-d)"></div></div><strong>0.3%</strong></div>
+              <div class="hbar-row"><span><code>cache_controller</code></span><div class="hbar-track"><div class="hbar-fill" data-w="0.1" style="background: var(--acc-e)"></div></div><strong>0.1% (31 cells)</strong></div>
+            </div>
+            <p class="body-text small muted-note">Metadata overhead at 1&nbsp;KiB/16&nbsp;B is <strong>18.0%</strong> (23 tag+valid bits per 128 data bits).</p>
+          </div>
+
+          <div class="side-stack">
+            <div class="stat-grid-2">
+              <div class="stat-card"><div class="stat-num count-up" data-target="312" data-suffix="">0</div><div class="stat-lbl">Xilinx Logic LUTs</div></div>
+              <div class="stat-card"><div class="stat-num count-up" data-target="150" data-suffix="">0</div><div class="stat-lbl"><code>RAM64X1S</code> LUTRAMs</div></div>
+              <div class="stat-card"><div class="stat-num count-up" data-target="133" data-suffix="">0</div><div class="stat-lbl">Xilinx Flip-Flops</div></div>
+              <div class="stat-card"><div class="stat-num count-up" data-target="83.15" data-decimals="2" data-suffix=" MHz">0</div><div class="stat-lbl">iCE40 HX8K Fmax (Wrap)</div></div>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Honest Tool Caveat</h3>
+              <p class="body-text small"><strong>No Vivado used:</strong> Xilinx counts are Yosys technology mapping (<strong>0 BRAM</strong> due to 1-cycle async reads). Static timing on Lattice iCE40 HX8K via registered wrapper <code>fmax_wrap.v</code> hits <strong>83.15 MHz</strong> (12.03&nbsp;ns critical hit path; up to 89.37&nbsp;MHz across seeds).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13: CHAPTER D COVER -->
+    <section class="slide chapter-cover is-cover" data-id="13" data-chapter="Chapter D" data-person="Shreya Suman" data-title="Chapter D · Shreya Suman" style="--acc: var(--acc-d)"
+      data-note="Chapter D is Shreya Suman, Verification Lead. She built our 4-layer test suite and checked 32,776 hardware accesses against a Python reference model with zero errors.">
+      <div class="slide-inner center-stage">
+        <div class="cover-letter">D</div>
+        <div class="cover-tag">Member M4 &middot; Design Verification Lead</div>
+        <h2 class="cover-name">Shreya Suman</h2>
+        <p class="cover-story">&ldquo;I built four layers of automated tests checking 146 edge cases and 32,776 trace accesses &mdash; then proved our tests catch real bugs.&rdquo;</p>
+        <div class="phase-chips">
+          <span class="p-chip"><strong>Phase I:</strong> <code>golden_model.py</code> &middot; 146 Directed Assertions &middot; <code>Makefile</code></span>
+          <span class="p-chip"><strong>Phase II:</strong> 32,776-Access Co-Simulation &middot; 3 Fault Mutations &middot; <code>verification.md</code></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 14: D · VERIFICATION PYRAMID -->
+    <section class="slide" data-id="14" data-chapter="Chapter D" data-person="Shreya Suman" data-title="D · Verification Pyramid" style="--acc: var(--acc-d)"
+      data-note="We test bottom-up: first 5 unit tests, then 15 memory integration tests, then 146 corner-case checks (like reading address zero right after reset), and finally 8 full trace runs.">
+      <div class="slide-inner">
+        <div class="slide-header">
+          <span class="eyebrow">Person D &middot; Automated Regression (make test)</span>
+          <h2>4-Layer Verification Pyramid &amp; Edge Cases</h2>
+          <p class="slide-sub">One command (<code>make test</code>) runs all unit, integration, corner-case, and golden co-simulation checks in ~7 seconds.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card pyramid-card">
+            <div class="big-counter">
+              <span class="count-up hit-txt" data-target="146" data-suffix=" / 146">0</span>
+              <small>Directed Corner-Case Checks Passed (0 Errors)</small>
+            </div>
+            <div class="pyramid" id="verifPyramid">
+              <div class="pyr-tier t4"><strong>Layer 4: Golden Co-Simulation</strong><span>8 workloads &middot; 32,776 accesses &middot; 0 mismatches</span></div>
+              <div class="pyr-tier t3"><strong>Layer 3: Directed Corner Cases</strong><span>146 runtime checks (TC-01 to TC-10) &middot; 0 errors</span></div>
+              <div class="pyr-tier t2"><strong>Layer 2: Memory Integration</strong><span>15 / 15 runs across latencies 1, 4, 10 &amp; writes</span></div>
+              <div class="pyr-tier t1"><strong>Layer 1: Module Unit Tests</strong><span>5 / 5 blocks across 16 cache/block sizes</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title">10 Corner Cases Checked Automatically</h3>
+            <ul class="tc-checklist" id="tcChecklist">
+              <li><span class="chk">&#10003;</span> <strong>TC-01:</strong> Reset miss at <code>0x0</code> (valid=0 blocks tag=0)</li>
+              <li><span class="chk">&#10003;</span> <strong>TC-02:</strong> Re-read same word hits immediately</li>
+              <li><span class="chk">&#10003;</span> <strong>TC-03:</strong> Next 3 words (<code>0x04, 0x08, 0x0C</code>) hit</li>
+              <li><span class="chk">&#10003;</span> <strong>TC-04:</strong> Non-zero offset (<code>0x1008</code>) still refills full block</li>
+              <li><span class="chk">&#10003;</span> <strong>TC-05:</strong> Ping-pong conflict (<code>0x2010</code> vs <code>0x2410</code>)</li>
+              <li><span class="chk">&#10003;</span> <strong>TC-06:</strong> Old stale data completely overwritten</li>
+              <li><span class="chk">&#10003;</span> <strong>TC-07:</strong> All 64 cache lines filled &amp; re-read</li>
+              <li><span class="chk">&#10003;</span> <strong>TC-08:</strong> Reset mid-refill clears safely without hang</li>
+              <li><span class="chk">&#10003;</span> <strong>TC-09:</strong> Exact 1 pulse per request on counters</li>
+              <li><span class="chk">&#10003;</span> <strong>TC-10:</strong> Exact latency verified (<strong>1</strong> vs <strong>22</strong> cycles)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 15: D · RTL VS GOLDEN + MUTATION TESTS -->
+    <section class="slide" data-id="15" data-chapter="Chapter D" data-person="Shreya Suman" data-title="D · Golden Co-Sim & Mutations" style="--acc: var(--acc-d)"
+      data-note="Every single Verilog output matches Python on 32,776 accesses. To prove our tests aren't weak, Shreya also injected 3 real hardware bugs — and all 3 failed immediately.">
+      <div class="slide-inner">
+        <div class="slide-header">
+          <span class="eyebrow">Person D &middot; Bit-Exact Proof &amp; Fault Injection</span>
+          <h2>Verilog vs. Python Twin + Bug Catching Proof</h2>
+          <p class="slide-sub">All 8 traces match Python cycle-by-cycle, and 3 injected RTL bugs fail loudly. <em>(Click waveform to zoom)</em></p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-sub-bar">
+              <span><code>compare.py</code> Row-by-Row Diff</span>
+              <strong class="hit-txt">32,776 / 32,776 MATCH</strong>
+            </div>
+            <table class="diff-table" id="diffTable">
+              <thead><tr><th>Trace</th><th>Accesses</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td><code>loop</code></td><td>4,096</td><td><span class="match-pill">MATCH</span></td></tr>
+                <tr><td><code>matrix_col</code></td><td>4,096</td><td><span class="match-pill">MATCH</span></td></tr>
+                <tr><td><code>matrix_row</code></td><td>4,096</td><td><span class="match-pill">MATCH</span></td></tr>
+                <tr><td><code>mixed</code></td><td>4,096</td><td><span class="match-pill">MATCH</span></td></tr>
+                <tr><td><code>random</code></td><td>4,096</td><td><span class="match-pill">MATCH</span></td></tr>
+                <tr><td><code>sample</code></td><td>8</td><td><span class="match-pill">MATCH</span></td></tr>
+                <tr><td><code>seq</code></td><td>4,096</td><td><span class="match-pill">MATCH</span></td></tr>
+                <tr><td><code>stride</code></td><td>4,096</td><td><span class="match-pill">MATCH</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="side-stack">
+            <div class="card">
+              <h3 class="card-title">Testing the Tests (3 Injected Bugs)</h3>
+              <div class="mut-grid" id="mutCards">
+                <div class="mut-card"><strong>Bug 1: Break <code>valid</code> reset</strong><span>Caught by TC-08 &rarr; <b class="miss-txt">4 Errors</b></span></div>
+                <div class="mut-card"><strong>Bug 2: Ignore <code>valid</code> in compare</strong><span>Caught by TC-08 &rarr; <b class="miss-txt">4 Errors</b></span></div>
+                <div class="mut-card"><strong>Bug 3: Drop lower 4 tag bits</strong><span>Caught by TC-04/05/06 &rarr; <b class="miss-txt">17 Errors</b></span></div>
+              </div>
+            </div>
+            <div class="card svg-frame">
+              <div class="card-sub-bar"><span>Actual Cold Miss Simulation Waveform</span><span class="muted">Click image to zoom</span></div>
+              <div class="media-wrap wave-thumb">
+                <img src="../docs/waveforms/waveform_cold_miss.svg" class="zoomable-img" alt="Cold Miss Simulation Waveform" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 16: CHAPTER E COVER -->
+    <section class="slide chapter-cover is-cover" data-id="16" data-chapter="Chapter E" data-person="Ranvendra Pratap Singh" data-title="Chapter E · Ranvendra Pratap Singh" style="--acc: var(--acc-e)"
+      data-note="Chapter E is Ranvendra Pratap Singh. He generated 7 realistic memory workloads, separated misses into Compulsory/Conflict/Capacity, and measured AMAT across 16 cache configurations.">
+      <div class="slide-inner center-stage">
+        <div class="cover-letter">E</div>
+        <div class="cover-tag">Member M5 &middot; Workload &amp; Performance Analyst</div>
+        <h2 class="cover-name">Ranvendra Pratap Singh</h2>
+        <p class="cover-story">&ldquo;I stress-tested our cache on 7 workloads, proved why column-major matrices thrash at 0%, and mapped AMAT across 16 sizes.&rdquo;</p>
+        <div class="phase-chips">
+          <span class="p-chip"><strong>Phase I:</strong> <code>gen_traces.py</code> &middot; 7 Workloads &middot; <code>analyze.py</code></span>
+          <span class="p-chip"><strong>Phase II:</strong> 3-C Classification &middot; 16-Point Parameter Sweep &middot; <code>hit_miss_report.md</code></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 17: E · WORKLOADS & HIT RATIO -->
+    <section class="slide" data-id="17" data-chapter="Chapter E" data-person="Ranvendra Pratap Singh" data-title="E · Workloads & Hit Ratio" style="--acc: var(--acc-e)"
+      data-note="Loop reaches 99.22% hits because it fits inside 1 KiB. Notice matrix_row hits 75%, whereas reading the exact same matrix column-by-column drops to 0% due to 256-byte index collisions.">
+      <div class="slide-inner">
+        <div class="slide-header">
+          <span class="eyebrow">Person E &middot; 1 KiB Cache, 16 B Block, L=4</span>
+          <h2>How 7 Workloads Perform (99.22% Down to 0.00%)</h2>
+          <p class="slide-sub">Click or hover any bar to see the plain-English story behind its hit ratio and AMAT.</p>
+        </div>
+
+        <div class="card chart-card">
+          <div class="vbar-chart" id="hitBarChart"></div>
+          <div class="story-bar" id="traceStoryBar">Click or hover any bar above to read why that workload scored what it did.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 18: E · 3-C MISSES & AMAT -->
+    <section class="slide" data-id="18" data-chapter="Chapter E" data-person="Ranvendra Pratap Singh" data-title="E · 3-C Misses & AMAT" style="--acc: var(--acc-e)"
+      data-note="By running an ideal fully-associative shadow cache alongside ours, we proved matrix_col suffers 3,072 Conflict misses. Drag the AMAT slider to see how miss rate controls average memory speed.">
+      <div class="slide-inner">
+        <div class="slide-header">
+          <span class="eyebrow">Person E &middot; Three-C Misses &amp; Block Size Trade-Off</span>
+          <h2>Why Misses Happen (3-C) &amp; Interactive AMAT</h2>
+          <p class="slide-sub"><strong>Compulsory</strong> = first visit &middot; <strong>Conflict</strong> = index collision &middot; <strong>Capacity</strong> = cache too small. <em>(Click plot to zoom)</em></p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-sub-bar">
+              <span>3-C Breakdown (Out of 4,096 Accesses)</span>
+              <span class="leg-3c"><i class="sw sw-comp"></i>Comp <i class="sw sw-conf"></i>Conf <i class="sw sw-cap"></i>Cap</span>
+            </div>
+            <div class="stacked-3c" id="stacked3c"></div>
+            <p class="body-text small muted-note"><strong>Shadow Cache Rule:</strong> If a 64-line fully associative LRU cache <em>hits</em> where our cache missed, it is a <strong>Conflict</strong> miss; if both miss, it is a <strong>Capacity</strong> miss.</p>
+          </div>
+
+          <div class="side-stack">
+            <div class="card amat-slider-card">
+              <div class="card-sub-bar">
+                <span>Live Formula: <code>AMAT = 1 + miss_rate &times; 21</code></span>
+                <strong class="accent-e-txt" id="amatResult">6.25 cyc</strong>
+              </div>
+              <div class="slider-row">
+                <label for="missSlider">Miss Rate: <strong id="missPctLbl">25%</strong></label>
+                <input type="range" id="missSlider" min="0" max="100" value="25" />
+              </div>
+            </div>
+            <div class="card svg-frame">
+              <div class="card-sub-bar"><span>AMAT vs. Block Size (8 B &rarr; 64 B)</span><span class="muted">Click image to zoom</span></div>
+              <div class="media-wrap plot-thumb">
+                <img src="../analysis/results/amat_vs_block_size.png" class="zoomable-img" alt="AMAT versus Block Size Plot" />
+              </div>
+              <p class="body-text small">Bigger blocks raise sequential hits, but Miss Penalty jumps from 11 to <strong>81 cycles at 64&nbsp;B</strong>, hurting random AMAT.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 19: FINALE LIVE CACHE SIMULATOR -->
+    <section class="slide" data-id="19" data-chapter="Finale" data-person="Live Simulator" data-title="Live Cache Simulator"
+      data-note="Let's watch our actual direct-mapped cache rule run live in the browser! Try Sequential (~75% hit), Loop (turns solid green), and Conflict ping-pong (0% hits on the same line).">
+      <div class="slide-inner">
+        <div class="slide-header">
+          <span class="eyebrow">Interactive Finale &middot; Live 48-Access Playback</span>
+          <h2>Live Direct-Mapped Cache Simulator</h2>
+          <p class="slide-sub">Watch 48 real memory accesses execute live across all 64 cache lines using our exact hardware index/tag math.</p>
+        </div>
+
+        <div class="sim-controls card">
+          <div class="btn-group">
+            <button class="btn btn-sm pat-btn" data-pat="seq">Sequential (~75%)</button>
+            <button class="btn btn-sm pat-btn" data-pat="loop">Loop (Temporal)</button>
+            <button class="btn btn-sm pat-btn" data-pat="conflict">Conflict Ping-Pong (0%)</button>
+            <button class="btn btn-sm pat-btn" data-pat="random">Random</button>
+          </div>
+          <button class="btn btn-sm btn-miss" id="btnStopSim">Reset Sim</button>
+        </div>
+
+        <div class="storage-layout">
+          <div class="card cache-grid-card">
+            <div class="card-sub-bar">
+              <span>64-Line Visual Cache (<code id="simPatternLbl">Select a workload above</code>)</span>
+              <span id="simLastEvent" class="muted">Step 0 / 48</span>
+            </div>
+            <div class="line-grid-64" id="simGrid"></div>
+            <div class="sim-log-strip" id="simAddrBar">Ready &mdash; click any workload button above to run 48 accesses live.</div>
+          </div>
+
+          <div class="side-stack">
+            <div class="stat-grid-2">
+              <div class="stat-card"><div class="stat-num hit-txt" id="simHits">0</div><div class="stat-lbl">Hits (1 cyc)</div></div>
+              <div class="stat-card"><div class="stat-num miss-txt" id="simMisses">0</div><div class="stat-lbl">Misses (22 cyc)</div></div>
+              <div class="stat-card"><div class="stat-num" id="simRatio">0.0%</div><div class="stat-lbl">Hit Ratio</div></div>
+              <div class="stat-card"><div class="stat-num" id="simAmat">1.00</div><div class="stat-lbl">Live AMAT (cyc)</div></div>
+            </div>
+            <div class="card">
+              <h3 class="card-title">What to Notice Live</h3>
+              <ul class="clean-list">
+                <li><strong>Sequential:</strong> Every 4th access fetches a block &rarr; 3 green hits follow!</li>
+                <li><strong>Loop:</strong> Warms up lines once, then hits <strong>100% of repeats</strong>.</li>
+                <li><strong>Conflict:</strong> Alternating <code>0x2010</code> / <code>0x2410</code> hammers Line 1 red every cycle!</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 20: SUMMARY & THANK YOU -->
+    <section class="slide is-cover" data-id="20" data-chapter="Closing" data-person="Summary" data-title="Summary & Questions"
+      data-note="To summarize: 146 directed checks pass, 32,776 trace accesses match Python bit-for-bit, loop hits reach 99.22%, synthesis uses 312 LUTs + 150 LUTRAMs, and iCE40 wrapper reaches 83.15 MHz. Thank you — we are ready for questions!">
+      <div class="slide-inner center-stage">
+        <div class="pill-badge">Phase I &amp; Phase II Complete &middot; Release v1.0</div>
+        <h2 class="hero-title">Verified, Synthesized &amp; Ready for Evaluation</h2>
+
+        <div class="summary-grid-6">
+          <div class="stat-card"><div class="stat-num hit-txt">146 / 146</div><div class="stat-lbl">Directed Checks (0 Errors)</div></div>
+          <div class="stat-card"><div class="stat-num hit-txt">32,776</div><div class="stat-lbl">Bit-Exact Trace Accesses</div></div>
+          <div class="stat-card"><div class="stat-num">99.22%</div><div class="stat-lbl">Peak Loop Hit Ratio</div></div>
+          <div class="stat-card"><div class="stat-num">1 vs 22 cyc</div><div class="stat-lbl">Hit / Miss Latency</div></div>
+          <div class="stat-card"><div class="stat-num">312 + 150</div><div class="stat-lbl">Xilinx LUTs + LUTRAMs</div></div>
+          <div class="stat-card"><div class="stat-num">83.15 MHz</div><div class="stat-lbl">iCE40 Wrapper Fmax</div></div>
+        </div>
+
+        <div class="team-thanks-row">
+          <span style="--acc: var(--acc-a)">A &middot; Pankaj Baid</span>
+          <span style="--acc: var(--acc-b)">B &middot; Ashutosh Singh</span>
+          <span style="--acc: var(--acc-c)">C &middot; Narendra Singh</span>
+          <span style="--acc: var(--acc-d)">D &middot; Shreya Suman</span>
+          <span style="--acc: var(--acc-e)">E &middot; Ranvendra Pratap Singh</span>
+        </div>
+
+        <p class="repo-line">GitHub Repository: <a href="https://github.com/pankajbaid567/mca-capstone" target="_blank" rel="noopener">github.com/pankajbaid567/mca-capstone</a></p>
+        <div class="qa-banner">Thank You &mdash; Any Questions? <small>(Live Terminal Demo: <code>make test</code>)</small></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Presenter Speaker Notes Drawer (Toggle with N or Notes button) -->
+  <aside class="notes-drawer" id="notesDrawer" aria-live="polite" hidden>
+    <span class="notes-tag">Presenter Cue</span>
+    <p id="notesText"></p>
+  </aside>
+
+  <!-- Click-to-Zoom Lightbox -->
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Zoomed figure">
+    <button class="lb-close" id="lbClose" aria-label="Close zoom">&times; Close (Esc)</button>
+    <img id="lbImg" src="" alt="Zoomed diagram" />
+  </div>
+
+  <footer class="hud-footer">
+    <div class="hud-left" id="hudLabel">Intro &middot; Overview</div>
+    <div class="hud-center">
+      <span id="slideCount">1 / 20</span>
+      <button class="nav-btn btn-notes" id="btnNotes" title="Toggle Presenter Notes (N)">Notes (N)</button>
+    </div>
+    <div class="hud-right">
+      <button class="nav-btn" id="btnPrev" aria-label="Previous slide">&larr; Prev</button>
+      <button class="nav-btn" id="btnNext" aria-label="Next slide">Next &rarr;</button>
+    </div>
+  </footer>
+</body>
+</html>
