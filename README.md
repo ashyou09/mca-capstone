@@ -5,6 +5,7 @@
 [![Synthesis](https://img.shields.io/badge/Synthesis-Yosys%200.71-orange.svg)](synth/)
 [![Workload Analysis](https://img.shields.io/badge/Workloads-7%20Traces%20(4096%20acc)-purple.svg)](analysis/)
 [![Phase I & II Complete](https://img.shields.io/badge/Project-Phase%20I%20%26%20II%20Complete%20(v1.0)-success.svg)](report/)
+[![Interactive Demo](https://img.shields.io/badge/Demo-Interactive%20Presentation-38bdf8.svg)](demo/)
 
 A parameterized, synthesizable **Direct-Mapped Cache Controller** in Verilog with modular datapath hierarchy, Mealy/Moore controller FSM, behavioral main-memory interface, bit-accurate Python golden model, automated regression test suite, and comprehensive architectural performance analysis.
 
@@ -13,6 +14,7 @@ A parameterized, synthesizable **Direct-Mapped Cache Controller** in Verilog wit
 ## 📌 Project Deliverables (Phase I & Phase II)
 
 - 📄 **Final IEEE Project Report (PDF):** [`report/ieee_project_report.pdf`](report/ieee_project_report.pdf)
+- 🖥️ **Interactive Presentation Demo (A → E Story):** [`demo/index.html`](demo/index.html) (Keynote-style 20-slide deck with live FSM, address decoder, 22-cycle handshake & cache simulators — ready for Vercel static hosting)
 - 🎥 **Prototype Demo Video Link:** [Prototype Demonstration Video (Google Drive)](https://drive.google.com/drive/folders/1o7124f-L4o_MpETQ42nz_No1Ag2AnOtB?usp=sharing)
 - 📊 **Architecture Block Diagram:** [`docs/architecture_block_diagram.svg`](docs/architecture_block_diagram.svg)
 - 🎓 **Team Project Interview / Viva Guide:** [`docs/viva_guide.md`](docs/viva_guide.md)
@@ -78,6 +80,14 @@ make analysis-rtl T=seq
 make wave
 ```
 
+### Running the Interactive Presentation Demo
+```sh
+python3 -m http.server 8000
+# Open http://localhost:8000/ (auto-redirects to /demo/)
+```
+- **Controls:** `←` / `→` / `Space` to navigate slides, `N` to toggle presenter notes, click any diagram to zoom.
+- **Vercel Deployment:** [`vercel.json`](vercel.json) and root [`index.html`](index.html) automatically redirect `/` to `/demo/` when imported into Vercel with **Framework Preset** = `Other` and **Root Directory** = `./`.
+
 ---
 
 ## 📈 Verification & Performance Results
@@ -114,10 +124,17 @@ make wave
 
 ```
 .
-├── README.md                           # Project landing page & Phase I overview
+├── README.md                           # Project landing page & Phase I/II overview
+├── index.html                          # Root redirect to /demo/ for static hosting
+├── vercel.json                         # Vercel cleanUrls & root-to-demo redirect config
 ├── Makefile                            # Build automation (sim, test, trace, synth)
 ├── plan.md                             # Milestone plan, contracts & team allocation
 ├── project.md                          # Original project specifications
+├── demo/                               # Interactive Keynote-style presentation (A → E)
+│   ├── index.html                      # 20-slide story & simulator deck
+│   ├── styles.css                      # Presentation theme & responsive layout
+│   ├── app.js                          # Slide nav, FSM/decoder/handshake/cache sims
+│   └── README.md                       # Demo launch & keyboard shortcuts guide
 ├── rtl/                                # Synthesizable Verilog RTL
 │   ├── addr_decoder.v                  # Address field extractor ($clog2)
 │   ├── tag_ram.v                       # Tag memory (64 x 22 bits, async read)
